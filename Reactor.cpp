@@ -4,8 +4,8 @@
 #include <netinet/in.h>
 #include<string.h>
 #include <cassert>
-
-#include <sys/epoll.h>
+#include <errno.h>
+#include <stdio.h>
 
 void Reactor::init(int port) {
     m_port = port;
@@ -42,6 +42,17 @@ void Reactor::init_epoll() {
 void Reactor::add_epoll(int fd) {
     epoll_event event;
     event.data.fd = fd;
-
+    event.events = EPOLLIN | EPOLLRDHUP;
     epoll_ctl(m_epollfd, EPOLL_CTL_ADD, fd, &event);
+}
+
+void Reactor::eventloop() {
+    while (true) {
+        int num = epoll_wait(m_epollfd, m_events, MAX_EVENT_NUM, -1);
+        if (num < 0 && errno != EINTR)
+        {
+            printf("%s", "epoll failure");
+            break;
+        }
+    }
 }
