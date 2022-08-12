@@ -8,7 +8,7 @@ else
 
 endif
 
-server: main.cpp  ./Reactor/Reactor.cpp ./Acceptor/Acceptor.cpp ./Handler/Handler.cpp
+server: main.cpp  ./Reactor/Reactor.cpp ./Acceptor/Acceptor.cpp ./Handler/Handler.cpp ./ThreadPool/ThreadPool.cpp ./ThreadPool/Worker.cpp
 	$(CXX) -std=c++17 -o server $^ $(CXXFLAGS) 
 
 clean:
