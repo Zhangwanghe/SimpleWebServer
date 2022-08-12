@@ -1,6 +1,5 @@
+class ThreadPool;
 class Worker {
 public:
-    Worker();
-
-    void run();
+    void run(ThreadPool* pool);
 };

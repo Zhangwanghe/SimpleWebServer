@@ -3,6 +3,7 @@
 #include <queue>
 #include <mutex>
 #include <thread>
+#include <optional>
 
 typedef std::function<void()> TaskType;
 class Worker;
@@ -15,8 +16,6 @@ class ThreadPool {
 
     void addWorker();
 
-    void removeWorker(Worker* worker);
-
     void executeWorker(Worker* worker);
 
 public:
@@ -24,5 +23,8 @@ public:
 
     void schedule(const TaskType& task);
 
+    std::optional<TaskType> getTask();
+
+    void removeWorker(std::thread::id id);
     //void waitAll();
 };

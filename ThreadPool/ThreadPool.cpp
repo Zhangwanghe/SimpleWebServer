@@ -21,14 +21,27 @@ void ThreadPool::addWorker() {
     if (m_workers.size() < m_threadNum) {
         auto worker = new Worker;
         thread t(&ThreadPool::executeWorker, this, worker);
+        //todo m_workers[t.get_id()] = t;
         t.detach();   
     } 
 }
 
-void ThreadPool::removeWorker(Worker* worker) {
+void ThreadPool::removeWorker(thread::id id) {
     std::lock_guard<std::recursive_mutex> guard(m_mutex);   
+    //todo 
 }
 
 void ThreadPool::executeWorker(Worker* worker) {
-    worker->run();
+    worker->run(this);
+}
+
+std::optional<TaskType> ThreadPool::getTask() {
+    std::lock_guard<std::recursive_mutex> guard(m_mutex);   
+    if (m_taskQueue.empty()) {
+        return nullopt;
+    }
+
+    auto ret = m_taskQueue.back();
+    m_taskQueue.pop();
+    return ret;
 }
