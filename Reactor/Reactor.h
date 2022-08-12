@@ -26,4 +26,6 @@ public:
     void startup();
 
     void eventloop();
+
+    void release();
 };

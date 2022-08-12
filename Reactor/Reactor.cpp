@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "../Acceptor/Acceptor.h"
+#include "../Handler/Handler.h"
 
 void Reactor::init(int port) {
     m_port = port;
@@ -67,6 +68,26 @@ void Reactor::dispatch(const epoll_event& event) {
     int fd = event.data.fd;
     if (fd == m_listenfd) {
         Acceptor acceptor;
-        acceptor.accept_connect(m_listenfd);
+        auto opt = acceptor.accept_connect(m_listenfd);
+        if (opt) {
+            auto p = opt.value();
+            m_fd2Handler[p.first] = p.second;
+        }
+    } else if (m_fd2Handler.count(fd) > 0) {
+        auto handler = m_fd2Handler[fd];
+        
+        if (event.events & EPOLLIN) {
+            handler->read();
+        }
+
+        if (event.events & EPOLLOUT) {
+            handler->write();
+        }
+    }
+}
+
+void Reactor::release() {
+    for (auto& [fd, handler] : m_fd2Handler) {
+        delete handler;
     }
 }
