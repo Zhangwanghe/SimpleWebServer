@@ -7,6 +7,8 @@
 #include <errno.h>
 #include <stdio.h>
 
+#include "../Acceptor/Acceptor.h"
+
 void Reactor::init(int port) {
     m_port = port;
 }
@@ -54,5 +56,17 @@ void Reactor::eventloop() {
             printf("%s", "epoll failure");
             break;
         }
+
+        for (int i = 0; i < num; ++i) {
+            dispatch(m_events[i]);
+        }
+    }
+}
+
+void Reactor::dispatch(const epoll_event& event) {
+    int fd = event.data.fd;
+    if (fd == m_listenfd) {
+        Acceptor acceptor;
+        acceptor.accept_connect(m_listenfd);
     }
 }

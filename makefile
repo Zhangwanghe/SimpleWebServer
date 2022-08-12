@@ -1,4 +1,4 @@
-CXX ?= g++
+CXX ?= g++ 
 
 DEBUG ?= 1
 ifeq ($(DEBUG), 1)
@@ -8,8 +8,8 @@ else
 
 endif
 
-server: main.cpp  Reactor.cpp 
-	$(CXX) -o server $^ $(CXXFLAGS) 
+server: main.cpp  ./Reactor/Reactor.cpp ./Acceptor/Acceptor.cpp ./Handler/Handler.cpp
+	$(CXX) -std=c++17 -o server $^ $(CXXFLAGS) 
 
 clean:
 	rm  -r server
