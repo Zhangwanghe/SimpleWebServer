@@ -21,14 +21,17 @@ class ThreadPool {
 
     void executeWorker(Worker* worker);
 
+    std::optional<TaskType> getTask();
+
+    void removeWorker(std::thread::id id);
+
+    friend class Worker;
+
 public:
     ThreadPool(int threadNum);
 
     void schedule(const TaskType& task);
 
-    std::optional<TaskType> getTask();
-
-    void removeWorker(std::thread::id id);
     //void waitAll();
 };
 
