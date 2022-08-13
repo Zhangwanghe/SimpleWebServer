@@ -2,6 +2,7 @@
 #include "../Processor/Processor.h"
 
 #include <sys/socket.h>
+#include <iostream>
 
 using namespace std;
 
@@ -15,8 +16,6 @@ void Handler::read() {
     {
         return;
     }
-
-    
 }
 
 void Handler::write() {

@@ -1,10 +1,12 @@
 #include <iostream>
 #include "Reactor/Reactor.h"
 
-const int port = 10086;
+// todo read from config or db
+const int Port = 10086;
 
 int main() {
     Reactor reactor;
-    reactor.init(port);
+    reactor.init(Port);
     reactor.startup();
+    reactor.eventloop();
 }

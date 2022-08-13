@@ -40,7 +40,7 @@ void Reactor::init_listen() {
 }
 
 void Reactor::init_epoll() {
-    m_epollfd = epoll_create(0);
+    m_epollfd = epoll_create(1);
     assert(m_epollfd >= 0);
 }
 
@@ -74,11 +74,12 @@ void Reactor::dispatch(const epoll_event& event) {
         if (opt) {
             auto p = opt.value();
             m_fd2Handler[p.first] = p.second;
-        }
+            add_epoll(p.first);
+        }        
     } else if (m_fd2Handler.count(fd) > 0) {
         auto handler = m_fd2Handler[fd];
-        
         if (event.events & EPOLLIN) {
+            
             handler->read();
         }
 
