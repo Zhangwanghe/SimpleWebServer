@@ -1,3 +1,5 @@
+#ifndef __Reactor_h__
+#define __Reactor_h__
 #include <sys/epoll.h>
 #include <unordered_map>
 
@@ -29,3 +31,5 @@ public:
 
     void release();
 };
+
+#endif

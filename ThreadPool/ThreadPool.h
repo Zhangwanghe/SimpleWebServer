@@ -1,3 +1,6 @@
+#ifndef __ThreadPool_h__
+#define __ThreadPool_h__
+
 #include <functional>
 #include <unordered_map>
 #include <queue>
@@ -28,3 +31,5 @@ public:
     void removeWorker(std::thread::id id);
     //void waitAll();
 };
+
+#endif

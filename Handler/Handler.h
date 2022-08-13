@@ -1,3 +1,6 @@
+#ifndef __Handler_h__
+#define __Handler_h__
+
 struct Buffer {
     char* buffer;
     int len;
@@ -21,3 +24,5 @@ public:
 
     void write();
 };
+
+#endif
