@@ -1,4 +1,7 @@
 #include "Reactor.h"
+#include "../Acceptor/Acceptor.h"
+#include "../Handler/Handler.h"
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -6,9 +9,8 @@
 #include <cassert>
 #include <errno.h>
 #include <stdio.h>
-
-#include "../Acceptor/Acceptor.h"
-#include "../Handler/Handler.h"
+#include <iostream>
+using namespace std;
 
 void Reactor::init(int port) {
     m_port = port;
@@ -54,7 +56,7 @@ void Reactor::eventloop() {
         int num = epoll_wait(m_epollfd, m_events, MAX_EVENT_NUM, -1);
         if (num < 0 && errno != EINTR)
         {
-            printf("%s", "epoll failure");
+            cout << "epoll failure" << endl;
             break;
         }
 
