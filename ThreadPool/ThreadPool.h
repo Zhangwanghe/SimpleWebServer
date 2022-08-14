@@ -8,12 +8,12 @@
 #include <thread>
 #include <optional>
 
-typedef std::function<void()> TaskType;
 class Worker;
+class Runnable;
 class ThreadPool {
     int m_threadNum;
     std::unordered_map<std::thread::id, std::thread> m_workers;
-    std::queue<TaskType> m_taskQueue; // no limit at now
+    std::queue<Runnable*> m_taskQueue; // no limit at now
 
     std::recursive_mutex  m_mutex;
 
@@ -21,7 +21,7 @@ class ThreadPool {
 
     void executeWorker(Worker* worker);
 
-    std::optional<TaskType> getTask();
+    std::optional<Runnable*> getTask();
 
     void removeWorker(std::thread::id id);
 
@@ -30,7 +30,7 @@ class ThreadPool {
 public:
     ThreadPool(int threadNum);
 
-    void schedule(const TaskType& task);
+    void schedule(Runnable* task);
 
     //void waitAll();
 };

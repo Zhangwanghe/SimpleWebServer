@@ -1,5 +1,6 @@
 #include "Worker.h"
 #include "ThreadPool.h"
+#include "Runnable.h"
 using namespace std;
 
 void Worker::run(ThreadPool* pool) {
@@ -9,7 +10,7 @@ void Worker::run(ThreadPool* pool) {
             break;
         }
 
-        optTask.value()();
+        optTask.value()->run();
     }
 
     pool->removeWorker(this_thread::get_id());

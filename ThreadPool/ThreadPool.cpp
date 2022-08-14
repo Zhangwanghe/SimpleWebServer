@@ -7,7 +7,7 @@ ThreadPool::ThreadPool(int threadNum)
     this->m_threadNum = threadNum;
 }
 
-void ThreadPool::schedule(const TaskType& task) {
+void ThreadPool::schedule(Runnable* task) {
     std::lock_guard<std::recursive_mutex> guard(m_mutex);
     m_taskQueue.push(task);
 
@@ -35,7 +35,7 @@ void ThreadPool::executeWorker(Worker* worker) {
     worker->run(this);
 }
 
-std::optional<TaskType> ThreadPool::getTask() {
+std::optional<Runnable*> ThreadPool::getTask() {
     std::lock_guard<std::recursive_mutex> guard(m_mutex);   
     if (m_taskQueue.empty()) {
         return nullopt;
