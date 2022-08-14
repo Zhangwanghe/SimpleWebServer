@@ -11,6 +11,7 @@ Handler::Handler(int fd) {
     m_fd = fd;
     m_bufferIn = make_shared<Buffer>();
     m_bufferOut = make_shared<Buffer>();
+    m_processer = make_unique<Processor>(new Processor(m_bufferIn, m_bufferOut));
 }
 
 void Handler::read(ThreadPool* threadPool) {
@@ -20,8 +21,7 @@ void Handler::read(ThreadPool* threadPool) {
         return;
     }
 
-    auto processor = new Processor(m_bufferIn, m_bufferOut);
-    threadPool->schedule(processor);
+    threadPool->schedule(m_processer);
 }
 
 void Handler::write() {
