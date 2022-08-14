@@ -4,8 +4,8 @@
 #include "../public.h"
 
 class Processor : public Runnable{
-    Buffer in;
-    Buffer out;
+    Buffer m_bufferIn;
+    Buffer m_bufferOut;
 public:
     Processor(const Buffer& in, const Buffer& out);
 

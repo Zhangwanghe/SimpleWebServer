@@ -1,8 +1,8 @@
 #include "Processor.h"
 
 Processor::Processor(const Buffer& in, const Buffer& out) {
-    this->in = in;
-    this->out = out;
+    this->m_bufferIn = in;
+    this->m_bufferOut = out;
 }
 
 void Processor::run() {
