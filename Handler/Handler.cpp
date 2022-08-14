@@ -20,7 +20,7 @@ void Handler::read(ThreadPool* threadPool) {
         return;
     }
 
-    auto processor = new Processor(Buffer(m_bufferIn, bytes), Buffer(m_bufferOut, -1));
+    auto processor = new Processor(m_bufferIn, m_bufferOut);
     threadPool->schedule(processor);
 }
 
