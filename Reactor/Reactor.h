@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 class Handler;
+class ThreadPool;
 class Reactor {
     int m_port;
     int m_listenfd;
@@ -13,6 +14,7 @@ class Reactor {
     epoll_event m_events[MAX_EVENT_NUM];
 
     std::unordered_map<int, Handler*> m_fd2Handler;
+    ThreadPool* m_threadPool = nullptr;
 
     void init_listen();
 
@@ -23,7 +25,7 @@ class Reactor {
     void dispatch(const epoll_event& event);
 
 public:
-    void init(int port);
+    void init(int port, int threadCount);
     
     void startup();
 

@@ -11,6 +11,7 @@ struct Buffer {
     }
 };
 
+class ThreadPool;
 class Handler {
     int m_fd;
 
@@ -20,7 +21,7 @@ class Handler {
 public:
     Handler(int fd);
 
-    void read();
+    void read(ThreadPool* threadPool);
 
     void write();
 };

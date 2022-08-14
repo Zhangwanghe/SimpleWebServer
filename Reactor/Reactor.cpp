@@ -1,6 +1,7 @@
 #include "Reactor.h"
 #include "../Acceptor/Acceptor.h"
 #include "../Handler/Handler.h"
+#include "../ThreadPool/ThreadPool.h"
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -12,8 +13,9 @@
 #include <iostream>
 using namespace std;
 
-void Reactor::init(int port) {
+void Reactor::init(int port, int threadCount) {
     m_port = port;
+    m_threadPool = new ThreadPool(threadCount);
 }
 
 void Reactor::startup() {
@@ -80,7 +82,7 @@ void Reactor::dispatch(const epoll_event& event) {
         auto handler = m_fd2Handler[fd];
         if (event.events & EPOLLIN) {
             
-            handler->read();
+            handler->read(m_threadPool);
         }
 
         if (event.events & EPOLLOUT) {
@@ -93,4 +95,6 @@ void Reactor::release() {
     for (auto& [fd, handler] : m_fd2Handler) {
         delete handler;
     }
+
+    delete m_threadPool;
 }
