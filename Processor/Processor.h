@@ -2,12 +2,14 @@
 #define __Processor_h__
 #include "../ThreadPool/Runnable.h"
 #include "../public.h"
+#include <memory>
 
 class Processor : public Runnable{
-    Buffer m_bufferIn;
-    Buffer m_bufferOut;
+    std::shared_ptr<Buffer> m_bufferIn;
+    std::shared_ptr<Buffer> m_bufferOut;
+
 public:
-    Processor(const Buffer& in, const Buffer& out);
+    Processor(const std::shared_ptr<Buffer>& in, const std::shared_ptr<Buffer>& out);
 
     virtual void run();
 };

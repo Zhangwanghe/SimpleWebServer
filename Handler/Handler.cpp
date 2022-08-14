@@ -9,10 +9,12 @@ using namespace std;
 
 Handler::Handler(int fd) {
     m_fd = fd;
+    m_bufferIn = make_shared<Buffer>();
+    m_bufferOut = make_shared<Buffer>();
 }
 
 void Handler::read(ThreadPool* threadPool) {
-    int bytes = recv(m_fd, m_bufferIn, MaxBufferSize, 0);
+    int bytes = recv(m_fd, m_bufferIn->buffer, MaxBufferSize, 0);
     if (bytes <= 0)
     {
         return;
