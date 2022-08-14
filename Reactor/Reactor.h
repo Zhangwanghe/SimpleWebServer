@@ -1,10 +1,11 @@
 #ifndef __Reactor_h__
 #define __Reactor_h__
+#include "../Handler/Handler.h"
+#include "../ThreadPool/ThreadPool.h"
 #include <sys/epoll.h>
 #include <unordered_map>
+#include <memory>
 
-class Handler;
-class ThreadPool;
 class Reactor {
     int m_port;
     int m_listenfd;
@@ -13,8 +14,8 @@ class Reactor {
     static const int MAX_EVENT_NUM = 10000;
     epoll_event m_events[MAX_EVENT_NUM];
 
-    std::unordered_map<int, Handler*> m_fd2Handler;
-    ThreadPool* m_threadPool = nullptr;
+    std::unordered_map<int, std::shared_ptr<Handler>> m_fd2Handler;
+    std::shared_ptr<ThreadPool> m_threadPool;
 
     void init_listen();
 
