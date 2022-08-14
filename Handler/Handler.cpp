@@ -18,8 +18,8 @@ void Handler::read(ThreadPool* threadPool) {
         return;
     }
 
-    //threadPool->schedule();
-    //auto processer = new Processer
+    auto processor = new Processor(Buffer(m_bufferIn, bytes), Buffer(m_bufferOut, -1));
+    threadPool->schedule(processor);
 }
 
 void Handler::write() {

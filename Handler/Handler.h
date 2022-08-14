@@ -1,22 +1,13 @@
 #ifndef __Handler_h__
 #define __Handler_h__
-
-struct Buffer {
-    char* buffer;
-    int len;
-
-    Buffer(char* buffer, int len) {
-        this->buffer = buffer;
-        this->len = len;
-    }
-};
+#include "../public.h"
 
 class ThreadPool;
 class Handler {
     int m_fd;
 
-    static const int MaxBufferSize = 2048;
     char m_bufferIn[MaxBufferSize];
+    char m_bufferOut[MaxBufferSize];
 
 public:
     Handler(int fd);
