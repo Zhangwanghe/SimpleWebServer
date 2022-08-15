@@ -4,11 +4,13 @@
 using namespace std;
 
 Processor::Processor(const shared_ptr<Buffer>& in, const shared_ptr<Buffer>& out,
-                     const shared_ptr<Buffer>& outFile, string rootDir) {
+                     const shared_ptr<Buffer>& outFile, const shared_ptr<Epoll>& epoll,
+                     string rootDir) {
     m_bufferIn = in;
     m_bufferOut = out;
     m_rootDir = rootDir;
     m_bufferOutFile = outFile;
+    m_epoll = epoll;
 
     initStatusCode();
 }

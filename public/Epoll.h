@@ -1,3 +1,5 @@
+#ifndef __Epoll_h__
+#define __Epoll_h__
 #include <optional>
 #include <sys/epoll.h>
 
@@ -18,3 +20,5 @@ public:
 
     std::optional<std::pair<int, epoll_event*>> waitEvents();
 };
+
+#endif

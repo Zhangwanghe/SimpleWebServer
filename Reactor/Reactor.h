@@ -10,7 +10,7 @@
 class Reactor {
     int m_port;
     int m_listenfd;
-    Epoll m_epoll;
+    std::shared_ptr<Epoll> m_epoll;
 
     std::unordered_map<int, std::shared_ptr<Handler>> m_fd2Handler;
     std::shared_ptr<ThreadPool> m_threadPool;

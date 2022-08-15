@@ -3,6 +3,7 @@
 #include "../public/public.h"
 #include "../Processor/Processor.h"
 #include "../ThreadPool/ThreadPool.h"
+#include "../public/Epoll.h"
 #include <memory>
 
 class Handler {
@@ -16,7 +17,7 @@ class Handler {
     std::shared_ptr<Runnable> m_processer;
 
 public:
-    Handler(int fd);
+    Handler(int fd, const std::shared_ptr<Epoll>& epoll);
 
     void read(std::shared_ptr<ThreadPool> threadPool);
 

@@ -6,7 +6,7 @@ using namespace std;
 
 using namespace std;
 
-optional<pair<int, std::shared_ptr<Handler>>> Acceptor::accept_connect(int listenfd) {
+optional<pair<int, std::shared_ptr<Handler>>> Acceptor::accept_connect(int listenfd, const shared_ptr<Epoll>& epoll) {
     struct sockaddr_in client_address;
     socklen_t client_addrlength = sizeof(client_address);
     int connfd = accept(listenfd, (struct sockaddr*)&client_address, &client_addrlength);
@@ -15,5 +15,5 @@ optional<pair<int, std::shared_ptr<Handler>>> Acceptor::accept_connect(int liste
         return nullopt;
     }
 
-    return make_optional(make_pair(connfd, make_shared<Handler>(connfd)));
+    return make_optional(make_pair(connfd, make_shared<Handler>(connfd, epoll)));
 }

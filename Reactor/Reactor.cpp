@@ -15,6 +15,7 @@ using namespace std;
 void Reactor::init(int port, int threadCount) {
     m_port = port;
     m_threadPool = make_shared<ThreadPool>(threadCount);
+    m_epoll = make_shared<Epoll>();
 }
 
 void Reactor::startup() {
@@ -40,7 +41,7 @@ void Reactor::init_listen() {
 
 void Reactor::eventloop() {
     while (true) {
-        auto opt = m_epoll.waitEvents();
+        auto opt = m_epoll->waitEvents();
         if (!opt) {
             break;
         }
@@ -55,11 +56,11 @@ void Reactor::dispatch(const epoll_event& event) {
     int fd = event.data.fd;
     if (fd == m_listenfd) {
         Acceptor acceptor;
-        auto opt = acceptor.accept_connect(m_listenfd);
+        auto opt = acceptor.accept_connect(m_listenfd, m_epoll);
         if (opt) {
             auto p = opt.value();
             m_fd2Handler[p.first] = p.second;
-            m_epoll.addfd(p.first);
+            m_epoll->addfd(p.first);
         }        
     } else if (m_fd2Handler.count(fd) > 0) {
         auto handler = m_fd2Handler[fd];

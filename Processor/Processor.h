@@ -2,6 +2,7 @@
 #define __Processor_h__
 #include "../ThreadPool/Runnable.h"
 #include "../public/public.h"
+#include "../public/Epoll.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,6 +18,8 @@ class Processor : public Runnable{
     std::string m_rootDir;
     std::string m_requestFile;
     std::unordered_map<int, std::string> m_statusCode2Title;
+
+    std::shared_ptr<Epoll> m_epoll;
     
     enum MethodType {
         GET = 0,
@@ -51,7 +54,7 @@ class Processor : public Runnable{
 
 public:
     Processor(const std::shared_ptr<Buffer>& in, const std::shared_ptr<Buffer>& out,
-            const std::shared_ptr<Buffer>& outFile, std::string rootDir = "static");
+            const std::shared_ptr<Buffer>& outFile, const std::shared_ptr<Epoll>& epoll, std::string rootDir = "static");
 
     virtual void run();
 };
