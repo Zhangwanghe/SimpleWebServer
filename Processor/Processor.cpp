@@ -3,16 +3,31 @@
 #include <iostream>
 using namespace std;
 
-Processor::Processor(const std::shared_ptr<Buffer>& in, const std::shared_ptr<Buffer>& out) {
-    this->m_bufferIn = in;
-    this->m_bufferOut = out;
+Processor::Processor(const shared_ptr<Buffer>& in, const shared_ptr<Buffer>& out,
+                     const shared_ptr<Buffer>& outFile, string rootDir) {
+    m_bufferIn = in;
+    m_bufferOut = out;
+    m_rootDir = rootDir;
+    m_bufferOutFile = outFile;
+
+    initStatusCode();
+}
+
+void Processor::initStatusCode() {
+    m_statusCode2Title[200] = "OK";
+    m_statusCode2Title[400] = "Bad Request";
+    m_statusCode2Title[403] = "Forbidden";
+    m_statusCode2Title[404] = "Not Found";
+    m_statusCode2Title[500] = "Internal Error";
 }
 
 void Processor::run() {
-    processRead();
+    auto status = processRead();
+    processWrite(status);
+    auto temp = m_buffer.rdbuf();
 }   
 
-void Processor::processRead() {
+Processor::RequestStatus Processor::processRead() {
     istringstream in(m_bufferIn->buffer);
 
     string line;
@@ -32,20 +47,52 @@ void Processor::processRead() {
         headers.push_back(header);
     }
 
+    return FILEREQUEST;
     // string body;
     // getline(in, body);
     // parseRequestBody(body);
 }
 
-void Processor::parseRequestLine(const string& line) {
+Processor::RequestStatus Processor::parseRequestLine(const string& line) {
+    // deal with Http 1.1
+    m_requestFile = "welcome.html";
+}
+
+Processor::RequestStatus Processor::parseRequestHeader(const vector<string>& headers) {
+    
+}
+
+Processor::RequestStatus Processor::parseRequestBody(const string& body) {
 
 }
 
-void Processor::parseRequestHeader(const vector<string>& headers) {
-
+void Processor::processWrite(RequestStatus status) {
+    switch(status) {
+        case FILEREQUEST: {
+            
+        }
+        default:
+            break;
+    }
 }
 
-void Processor::parseRequestBody(const vector<string>& body) {
+void Processor::writeStatusLine(int status) {
+    if (m_statusCode2Title.count(status) == 0) {
+        return;
+    }
 
+    m_buffer << "HTTP/1.1 " << status << " " << m_statusCode2Title[status] << endl;
 }
 
+void Processor::writeHeader(int contentLength) {
+    writeContentLength(contentLength);
+    writeBlankLine();
+}
+
+void Processor::writeContentLength(int contentLength) {
+    m_buffer << "Content-Length:" << contentLength << endl;
+}
+
+void Processor::writeBlankLine() {
+    m_buffer << endl;
+}

@@ -5,21 +5,53 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <sstream>
 
 class Processor : public Runnable{
     std::shared_ptr<Buffer> m_bufferIn;
     std::shared_ptr<Buffer> m_bufferOut;
+    std::shared_ptr<Buffer> m_bufferOutFile;
+        
+    std::ostringstream m_buffer;
+    std::string m_rootDir;
+    std::string m_requestFile;
+    std::unordered_map<int, std::string> m_statusCode2Title;
+    
+    enum MethodType {
+        GET = 0,
+        POST
+    };
 
-    void processRead();
+    enum RequestStatus {
+        BADREQUEST,
+        NOREQUEST,
+        FILEREQUEST
+    };
 
-    void parseRequestLine(const std::string& line);
+    void initStatusCode();
 
-    void parseRequestHeader(const std::vector<std::string>& headers);
+    RequestStatus processRead();
 
-    void parseRequestBody(const std::vector<std::string>& s);
+    RequestStatus parseRequestLine(const std::string& line);
+
+    RequestStatus parseRequestHeader(const std::vector<std::string>& headers);
+
+    RequestStatus parseRequestBody(const std::string& s);
+
+    void processWrite(RequestStatus status);
+
+    void writeStatusLine(int status);
+
+    void writeHeader(int contentLength);
+
+    void writeContentLength(int contentLength);
+
+    void writeBlankLine();
 
 public:
-    Processor(const std::shared_ptr<Buffer>& in, const std::shared_ptr<Buffer>& out);
+    Processor(const std::shared_ptr<Buffer>& in, const std::shared_ptr<Buffer>& out,
+            const std::shared_ptr<Buffer>& outFile, std::string rootDir = "static");
 
     virtual void run();
 };

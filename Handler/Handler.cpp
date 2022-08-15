@@ -7,9 +7,14 @@ using namespace std;
 
 Handler::Handler(int fd) {
     m_fd = fd;
+    
     m_bufferIn = make_shared<Buffer>();
     m_bufferOut = make_shared<Buffer>();
-    m_processer = make_shared<Processor>(m_bufferIn, m_bufferOut);
+    m_bufferOutFile = make_shared<Buffer>();
+    m_processer = make_shared<Processor>(m_bufferIn, m_bufferOut, m_bufferOutFile);
+    
+    m_buffer = shared_ptr<char>(new char[MaxBufferSize]);
+    m_bufferIn->buffer = m_buffer.get();
 }
 
 void Handler::read(shared_ptr<ThreadPool> threadPool) {

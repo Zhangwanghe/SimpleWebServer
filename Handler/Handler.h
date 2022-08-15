@@ -8,8 +8,10 @@
 class Handler {
     int m_fd;
     
+    std::shared_ptr<char> m_buffer;
     std::shared_ptr<Buffer> m_bufferIn;
     std::shared_ptr<Buffer> m_bufferOut;
+    std::shared_ptr<Buffer> m_bufferOutFile;
 
     std::shared_ptr<Runnable> m_processer;
 
