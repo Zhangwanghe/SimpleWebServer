@@ -24,11 +24,11 @@ void Processor::initStatusCode() {
 void Processor::run() {
     auto status = processRead();
     processWrite(status);
-    auto temp = m_buffer.rdbuf();
+    m_bufferOut->buffer = m_buffer.rdbuf();
 }   
 
 Processor::RequestStatus Processor::processRead() {
-    istringstream in(m_bufferIn->buffer);
+    istringstream in((char*)m_bufferIn->buffer);
 
     string line;
     getline(in, line);

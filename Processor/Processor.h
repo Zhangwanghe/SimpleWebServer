@@ -1,7 +1,7 @@
 #ifndef __Processor_h__
 #define __Processor_h__
 #include "../ThreadPool/Runnable.h"
-#include "../public.h"
+#include "../public/public.h"
 #include <memory>
 #include <string>
 #include <vector>

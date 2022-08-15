@@ -4,7 +4,7 @@
 const int MaxBufferSize = 2048;
 
 struct Buffer {
-    char* buffer;
+    void* buffer;
     int len = -1;
     int used = -1;
 

@@ -1,6 +1,6 @@
 #ifndef __Handler_h__
 #define __Handler_h__
-#include "../public.h"
+#include "../public/public.h"
 #include "../Processor/Processor.h"
 #include "../ThreadPool/ThreadPool.h"
 #include <memory>

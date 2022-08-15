@@ -1,10 +1,11 @@
 #include "Reactor.h"
 #include "../Acceptor/Acceptor.h"
 
+#include <strings.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include<string.h>
+#include <string.h>
 #include <cassert>
 #include <errno.h>
 #include <stdio.h>
@@ -18,8 +19,6 @@ void Reactor::init(int port, int threadCount) {
 
 void Reactor::startup() {
     init_listen();
-    init_epoll();    
-    add_epoll(m_listenfd);
 }
 
 void Reactor::init_listen() {
@@ -39,29 +38,15 @@ void Reactor::init_listen() {
     assert(ret >= 0);
 }
 
-void Reactor::init_epoll() {
-    m_epollfd = epoll_create(1);
-    assert(m_epollfd >= 0);
-}
-
-void Reactor::add_epoll(int fd) {
-    epoll_event event;
-    event.data.fd = fd;
-    event.events = EPOLLIN | EPOLLRDHUP;
-    epoll_ctl(m_epollfd, EPOLL_CTL_ADD, fd, &event);
-}
-
 void Reactor::eventloop() {
     while (true) {
-        int num = epoll_wait(m_epollfd, m_events, MAX_EVENT_NUM, -1);
-        if (num < 0 && errno != EINTR)
-        {
-            cout << "epoll failure" << endl;
+        auto opt = m_epoll.waitEvents();
+        if (!opt) {
             break;
         }
 
-        for (int i = 0; i < num; ++i) {
-            dispatch(m_events[i]);
+        for (int i = 0; i < opt->first; ++i) {
+            dispatch(opt->second[i]);
         }
     }
 }
@@ -74,7 +59,7 @@ void Reactor::dispatch(const epoll_event& event) {
         if (opt) {
             auto p = opt.value();
             m_fd2Handler[p.first] = p.second;
-            add_epoll(p.first);
+            m_epoll.addfd(p.first);
         }        
     } else if (m_fd2Handler.count(fd) > 0) {
         auto handler = m_fd2Handler[fd];
