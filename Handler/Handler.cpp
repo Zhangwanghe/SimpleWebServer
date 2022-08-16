@@ -31,10 +31,14 @@ void Handler::read(shared_ptr<ThreadPool> threadPool) {
 }
 
 void Handler::write() {
+    string buffer = ((stringbuf*)m_bufferOut->buffer)->str();
+    if (buffer.empty()) {
+        return;
+    }
+
     struct iovec iv[2];
     int count = 1;
     
-    string buffer = ((stringbuf*)m_bufferOut->buffer)->str();
     iv[0].iov_base = (void*)buffer.c_str();
     iv[0].iov_len = buffer.length();
 
@@ -48,10 +52,10 @@ void Handler::write() {
         {
             m_epoll->addEvent(m_fd, EPOLLOUT);
         }
-
-        unmapFile();
-        return;
     }
+
+    unmapFile();
+    return;
 }
 
 bool Handler::writeFile(struct iovec& iv) {
@@ -68,6 +72,6 @@ bool Handler::writeFile(struct iovec& iv) {
 void Handler::unmapFile() {
     if (m_bufferOutFile->buffer) {
         munmap(m_bufferOutFile->buffer, m_bufferOutFile->len);
-        m_bufferOutFile = nullptr;
+        m_bufferOutFile->buffer = nullptr;
     }
 }
