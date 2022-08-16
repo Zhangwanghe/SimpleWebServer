@@ -8,6 +8,7 @@
 
 class Handler {
     int m_fd;
+    std::shared_ptr<Epoll> m_epoll;
     
     std::shared_ptr<char> m_buffer;
     std::shared_ptr<Buffer> m_bufferIn;
@@ -15,6 +16,8 @@ class Handler {
     std::shared_ptr<Buffer> m_bufferOutFile;
 
     std::shared_ptr<Runnable> m_processer;
+
+    void unmapFile();
 
 public:
     Handler(int fd, const std::shared_ptr<Epoll>& epoll);

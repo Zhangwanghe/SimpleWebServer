@@ -8,6 +8,8 @@
 #include <vector>
 #include <unordered_map>
 #include <sstream>
+#include <sys/types.h>    
+#include <sys/stat.h> 
 
 class Processor : public Runnable{
     std::shared_ptr<Buffer> m_bufferIn;
@@ -17,6 +19,7 @@ class Processor : public Runnable{
     std::ostringstream m_buffer;
     std::string m_rootDir;
     std::string m_requestFile;
+    struct stat m_fileStat;
     std::unordered_map<int, std::string> m_statusCode2Title;
     
     std::shared_ptr<Epoll> m_epoll;
@@ -32,6 +35,8 @@ class Processor : public Runnable{
         NOREQUEST,
         FILEREQUEST
     };
+
+    const std::string DefaultPage = "welcome.html";
 
     void initStatusCode();
 

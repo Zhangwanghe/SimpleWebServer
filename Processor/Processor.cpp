@@ -1,6 +1,9 @@
 #include "Processor.h"
 #include <sstream>
 #include <iostream>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
 using namespace std;
 
 Processor::Processor(const shared_ptr<Buffer>& in, const shared_ptr<Buffer>& out,
@@ -8,8 +11,13 @@ Processor::Processor(const shared_ptr<Buffer>& in, const shared_ptr<Buffer>& out
                      int fd, string rootDir) {
     m_bufferIn = in;
     m_bufferOut = out;
-    m_rootDir = rootDir;
     m_bufferOutFile = outFile;
+
+    char   buffer[MaxBufferSize];   
+    getcwd(buffer, MaxBufferSize);
+    m_rootDir = buffer;
+    m_rootDir += "/" + rootDir;
+
     m_epoll = epoll;
     m_fd = fd;
 
@@ -37,7 +45,7 @@ Processor::RequestStatus Processor::processRead() {
 
     string line;
     getline(in, line);
-    parseRequestLine(line);
+    auto status = parseRequestLine(line);
 
     vector<string> headers;
     while (true) {
@@ -52,7 +60,7 @@ Processor::RequestStatus Processor::processRead() {
         headers.push_back(header);
     }
 
-    return FILEREQUEST;
+    return status;
     // string body;
     // getline(in, body);
     // parseRequestBody(body);
@@ -60,8 +68,20 @@ Processor::RequestStatus Processor::processRead() {
 
 Processor::RequestStatus Processor::parseRequestLine(const string& line) {
     // deal with Http 1.1
-    m_requestFile = "welcome.html";
-    return NOREQUEST;
+    int firstSpace = line.find_first_of(' ');
+    int secondSpace = line.find_first_of(' ', firstSpace + 1);
+
+    m_requestFile = line.substr(firstSpace + 1, secondSpace - firstSpace - 1);
+    if (m_requestFile == "/") {
+        m_requestFile += DefaultPage;
+    }
+
+    string filePath = m_rootDir + m_requestFile;
+    if (S_ISDIR(m_fileStat.st_mode) || stat(filePath.c_str(), &m_fileStat) < 0) {
+        return NOREQUEST;
+    }
+
+    return FILEREQUEST;
 }
 
 Processor::RequestStatus Processor::parseRequestHeader(const vector<string>& headers) {
@@ -77,11 +97,13 @@ void Processor::processWrite(RequestStatus status) {
         case FILEREQUEST: {
             int statusCode = 200;
             writeStatusLine(statusCode);
-            writeHeader(m_statusCode2Title[statusCode].length());
-            writeContent(statusCode);
+            writeHeader(m_fileStat.st_size);
+            mapFile();  
         }
-        default:
+        default: {
+            m_bufferOut->len = -1;
             break;
+        }
     }
 }
 
@@ -115,5 +137,9 @@ void Processor::writeContent(int statusCode) {
 }
 
 void Processor::mapFile() {
-    
+    string filePath = m_rootDir + m_requestFile;
+    int fd = open(filePath.c_str(), O_RDONLY);
+    m_bufferOutFile->buffer = mmap(0, m_fileStat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    m_bufferOutFile->len = m_fileStat.st_size;
+    close(fd);
 }

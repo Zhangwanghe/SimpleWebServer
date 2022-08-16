@@ -3,11 +3,13 @@
 #include <sys/socket.h>
 #include <iostream>
 #include <sys/uio.h>
+#include <sys/mman.h>
 
 using namespace std;
 
 Handler::Handler(int fd, const shared_ptr<Epoll>& epoll) {
     m_fd = fd;
+    m_epoll = epoll;
     
     m_bufferIn = make_shared<Buffer>();
     m_bufferOut = make_shared<Buffer>();
@@ -40,9 +42,32 @@ void Handler::write() {
         ++count;
     }
 
-    writev(m_fd, iv, count);
+    int len = writev(m_fd, iv, count);
+    if (len < 0) {
+        if (errno == EAGAIN)
+        {
+            m_epoll->addEvent(m_fd, EPOLLOUT);
+        }
+
+        unmapFile();
+        return;
+    }
 }
 
 bool Handler::writeFile(struct iovec& iv) {
-    return false;
+    if (m_bufferOutFile->len == -1) {
+        return false;
+    }
+    
+    iv.iov_base = m_bufferOutFile->buffer;
+    iv.iov_len = m_bufferOutFile->len;
+
+    return true;
+}
+
+void Handler::unmapFile() {
+    if (m_bufferOutFile->buffer) {
+        munmap(m_bufferOutFile->buffer, m_bufferOutFile->len);
+        m_bufferOutFile = nullptr;
+    }
 }
