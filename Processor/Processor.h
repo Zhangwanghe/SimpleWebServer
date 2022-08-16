@@ -18,8 +18,9 @@ class Processor : public Runnable{
     std::string m_rootDir;
     std::string m_requestFile;
     std::unordered_map<int, std::string> m_statusCode2Title;
-
+    
     std::shared_ptr<Epoll> m_epoll;
+    int m_fd;
     
     enum MethodType {
         GET = 0,
@@ -44,7 +45,7 @@ class Processor : public Runnable{
 
     void processWrite(RequestStatus status);
 
-    void writeStatusLine(int status);
+    void writeStatusLine(int statusCode);
 
     void writeHeader(int contentLength);
 
@@ -52,9 +53,14 @@ class Processor : public Runnable{
 
     void writeBlankLine();
 
+    void writeContent(int statusCode);
+
+    void mapFile();
+
 public:
     Processor(const std::shared_ptr<Buffer>& in, const std::shared_ptr<Buffer>& out,
-            const std::shared_ptr<Buffer>& outFile, const std::shared_ptr<Epoll>& epoll, std::string rootDir = "static");
+            const std::shared_ptr<Buffer>& outFile, const std::shared_ptr<Epoll>& epoll,
+            int fd, std::string rootDir = "static");
 
     virtual void run();
 };

@@ -5,12 +5,13 @@ using namespace std;
 
 Processor::Processor(const shared_ptr<Buffer>& in, const shared_ptr<Buffer>& out,
                      const shared_ptr<Buffer>& outFile, const shared_ptr<Epoll>& epoll,
-                     string rootDir) {
+                     int fd, string rootDir) {
     m_bufferIn = in;
     m_bufferOut = out;
     m_rootDir = rootDir;
     m_bufferOutFile = outFile;
     m_epoll = epoll;
+    m_fd = fd;
 
     initStatusCode();
 }
@@ -27,6 +28,8 @@ void Processor::run() {
     auto status = processRead();
     processWrite(status);
     m_bufferOut->buffer = m_buffer.rdbuf();
+    // reset event to trigger
+    m_epoll->addEvent(m_fd, EPOLLOUT);
 }   
 
 Processor::RequestStatus Processor::processRead() {
@@ -58,32 +61,36 @@ Processor::RequestStatus Processor::processRead() {
 Processor::RequestStatus Processor::parseRequestLine(const string& line) {
     // deal with Http 1.1
     m_requestFile = "welcome.html";
+    return NOREQUEST;
 }
 
 Processor::RequestStatus Processor::parseRequestHeader(const vector<string>& headers) {
-    
+    return NOREQUEST;
 }
 
 Processor::RequestStatus Processor::parseRequestBody(const string& body) {
-
+    return NOREQUEST;
 }
 
 void Processor::processWrite(RequestStatus status) {
     switch(status) {
         case FILEREQUEST: {
-            
+            int statusCode = 200;
+            writeStatusLine(statusCode);
+            writeHeader(m_statusCode2Title[statusCode].length());
+            writeContent(statusCode);
         }
         default:
             break;
     }
 }
 
-void Processor::writeStatusLine(int status) {
-    if (m_statusCode2Title.count(status) == 0) {
+void Processor::writeStatusLine(int statusCode) {
+    if (m_statusCode2Title.count(statusCode) == 0) {
         return;
     }
 
-    m_buffer << "HTTP/1.1 " << status << " " << m_statusCode2Title[status] << endl;
+    m_buffer << "HTTP/1.1 " << statusCode << " " << m_statusCode2Title[statusCode] << endl;
 }
 
 void Processor::writeHeader(int contentLength) {
@@ -97,4 +104,16 @@ void Processor::writeContentLength(int contentLength) {
 
 void Processor::writeBlankLine() {
     m_buffer << endl;
+}
+
+void Processor::writeContent(int statusCode) {
+    if (m_statusCode2Title.count(statusCode) == 0) {
+        return;
+    }
+
+    m_buffer << m_statusCode2Title[statusCode] << endl;
+}
+
+void Processor::mapFile() {
+    
 }

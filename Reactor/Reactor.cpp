@@ -37,6 +37,8 @@ void Reactor::init_listen() {
     assert(ret >= 0);
     ret = listen(m_listenfd, 10);
     assert(ret >= 0);
+
+    m_epoll->addfd(m_listenfd);
 }
 
 void Reactor::eventloop() {
@@ -65,12 +67,13 @@ void Reactor::dispatch(const epoll_event& event) {
     } else if (m_fd2Handler.count(fd) > 0) {
         auto handler = m_fd2Handler[fd];
         if (event.events & EPOLLIN) {
-            
             handler->read(m_threadPool);
         }
 
         if (event.events & EPOLLOUT) {
             handler->write();
+
+            m_epoll->addEvent(fd, EPOLLIN);
         }
     }
 }

@@ -22,6 +22,8 @@ public:
     void read(std::shared_ptr<ThreadPool> threadPool);
 
     void write();
+
+    bool writeFile(struct iovec& iv);
 };
 
 #endif
