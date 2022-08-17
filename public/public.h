@@ -1,5 +1,6 @@
 #ifndef __Public_h__
 #define __Public_h__
+#include <mutex>
 
 const int MaxBufferSize = 2048;
 
@@ -11,6 +12,8 @@ struct Buffer {
     Buffer(int len = -1) {
         this->len = len;
     }
+    
+    std::recursive_mutex mutex;
 };
 
 #endif

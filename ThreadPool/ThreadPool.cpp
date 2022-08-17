@@ -22,7 +22,6 @@ void ThreadPool::addWorker() {
         auto worker = make_shared<Worker>();
         thread t(&ThreadPool::executeWorker, this, worker);
         m_workers.insert(t.get_id());
-        //todo m_workers[t.get_id()] = t;
         t.detach();   
     } 
 }

@@ -17,6 +17,8 @@ class Handler {
 
     std::shared_ptr<Runnable> m_processor;
 
+    bool m_isHandling = false;
+
 public:
     Handler(int fd, const std::shared_ptr<Epoll>& epoll);
 

@@ -5,6 +5,7 @@
 #include <sys/uio.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <mutex>
 
 using namespace std;
 
@@ -22,20 +23,37 @@ Handler::Handler(int fd, const shared_ptr<Epoll>& epoll) {
 }
 
 bool Handler::read(shared_ptr<ThreadPool> threadPool) {
-    int bytes = recv(m_fd, m_bufferIn->buffer, MaxBufferSize, 0);
+    if (m_isHandling) {
+        return true;
+    }
+    m_isHandling = true; 
+
+    int bytes = -1;
+    {
+        lock_guard<recursive_mutex> g(m_bufferIn->mutex);
+        bytes = recv(m_fd, m_bufferIn->buffer, MaxBufferSize, 0);
+    }
+
     if (bytes <= 0)
     {
         if (errno != EINTR) {
             return false;
         }
     }
+    
     threadPool->schedule(m_processor);
 
     return true;
 }
 
 bool Handler::write() {
-    string buffer = ((const stringbuf*)m_bufferOut->buffer)->str();
+    string buffer;
+    {
+        lock_guard<recursive_mutex> g(m_bufferOut->mutex);
+        buffer = ((const stringbuf*)m_bufferOut->buffer)->str();
+        m_bufferOut->len = 0;
+    }
+
     if (buffer.empty()) {
         return true;
     }
@@ -62,6 +80,8 @@ bool Handler::write() {
     }
 
     m_processor->clear();
+    m_isHandling = false;
+
     return true;
 }
 

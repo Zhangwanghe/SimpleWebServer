@@ -12,6 +12,7 @@ Processor::Processor(const shared_ptr<Buffer>& in, const shared_ptr<Buffer>& out
     m_bufferIn = in;
     m_bufferOut = out;
     m_bufferOutFile = outFile;
+    m_bufferOut->buffer = m_buffer.rdbuf();
 
     char   buffer[MaxBufferSize];   
     getcwd(buffer, MaxBufferSize);
@@ -35,13 +36,16 @@ void Processor::initStatusCode() {
 void Processor::run() {
     auto status = processRead();
     processWrite(status);
-    m_bufferOut->buffer = m_buffer.rdbuf();
     // reset event to trigger
     m_epoll->addEvent(m_fd, EPOLLOUT);
 }   
 
 Processor::RequestStatus Processor::processRead() {
-    istringstream in((char*)m_bufferIn->buffer);
+    istringstream in;
+    {
+        lock_guard<recursive_mutex> g(m_bufferIn->mutex);
+        in = istringstream((char*)m_bufferIn->buffer);
+    }
 
     string line;
     getline(in, line);
@@ -98,7 +102,6 @@ void Processor::processWrite(RequestStatus status) {
             mapFile();  
         }
         default: {
-            m_bufferOut->len = -1;
             break;
         }
     }
