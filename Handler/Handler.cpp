@@ -25,13 +25,9 @@ bool Handler::read(shared_ptr<ThreadPool> threadPool) {
     int bytes = recv(m_fd, m_bufferIn->buffer, MaxBufferSize, 0);
     if (bytes <= 0)
     {
-        if (bytes < 0) {
-            if (errno == EINTR) {
-                return false;
-            }
+        if (errno != EINTR) {
+            return false;
         }
-
-        return true;
     }
     threadPool->schedule(m_processor);
 
