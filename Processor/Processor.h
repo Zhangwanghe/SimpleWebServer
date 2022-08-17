@@ -62,12 +62,16 @@ class Processor : public Runnable{
 
     void mapFile();
 
+    void unmapFile();
+
 public:
     Processor(const std::shared_ptr<Buffer>& in, const std::shared_ptr<Buffer>& out,
             const std::shared_ptr<Buffer>& outFile, const std::shared_ptr<Epoll>& epoll,
             int fd, std::string rootDir = "static");
 
     virtual void run();
+
+    virtual void clear();
 };
 
 #endif

@@ -17,8 +17,6 @@ class Handler {
 
     std::shared_ptr<Runnable> m_processer;
 
-    void unmapFile();
-
 public:
     Handler(int fd, const std::shared_ptr<Epoll>& epoll);
 

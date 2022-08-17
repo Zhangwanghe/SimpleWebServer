@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sys/uio.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -54,7 +55,7 @@ void Handler::write() {
         }
     }
 
-    unmapFile();
+    m_processer->clear();
     return;
 }
 
@@ -67,11 +68,4 @@ bool Handler::writeFile(struct iovec& iv) {
     iv.iov_len = m_bufferOutFile->len;
 
     return true;
-}
-
-void Handler::unmapFile() {
-    if (m_bufferOutFile->buffer) {
-        munmap(m_bufferOutFile->buffer, m_bufferOutFile->len);
-        m_bufferOutFile->buffer = nullptr;
-    }
 }

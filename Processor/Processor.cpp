@@ -112,7 +112,7 @@ void Processor::writeStatusLine(int statusCode) {
         return;
     }
 
-    m_buffer << "HTTP/1.1 " << statusCode << " " << m_statusCode2Title[statusCode] << endl;
+    m_buffer << "HTTP/1.0 " << statusCode << " " << m_statusCode2Title[statusCode] << endl;
 }
 
 void Processor::writeHeader(int contentLength) {
@@ -122,6 +122,8 @@ void Processor::writeHeader(int contentLength) {
 
 void Processor::writeContentLength(int contentLength) {
     m_buffer << "Content-Length:" << contentLength << endl;
+    m_buffer << "Connection:close" << endl;
+    m_buffer << "Content-Type: text/html;charset=utf-8" << endl;
 }
 
 void Processor::writeBlankLine() {
@@ -142,4 +144,16 @@ void Processor::mapFile() {
     m_bufferOutFile->buffer = mmap(0, m_fileStat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     m_bufferOutFile->len = m_fileStat.st_size;
     close(fd);
+}
+
+void Processor::clear() {
+    unmapFile();
+    close(m_fd);
+}
+
+void Processor::unmapFile() {
+    if (m_bufferOutFile->buffer) {
+        munmap(m_bufferOutFile->buffer, m_bufferOutFile->len);
+        m_bufferOutFile->buffer = nullptr;
+    }
 }
