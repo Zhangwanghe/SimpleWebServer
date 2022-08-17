@@ -15,14 +15,14 @@ class Handler {
     std::shared_ptr<Buffer> m_bufferOut;
     std::shared_ptr<Buffer> m_bufferOutFile;
 
-    std::shared_ptr<Runnable> m_processer;
+    std::shared_ptr<Runnable> m_processor;
 
 public:
     Handler(int fd, const std::shared_ptr<Epoll>& epoll);
 
-    void read(std::shared_ptr<ThreadPool> threadPool);
+    bool read(std::shared_ptr<ThreadPool> threadPool);
 
-    void write();
+    bool write();
 
     bool writeFile(struct iovec& iv);
 };

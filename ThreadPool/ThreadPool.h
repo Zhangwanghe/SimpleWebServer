@@ -3,7 +3,7 @@
 #include "Worker.h"
 #include "Runnable.h"
 #include <functional>
-#include <unordered_map>
+#include <unordered_set>
 #include <queue>
 #include <mutex>
 #include <thread>
@@ -12,7 +12,7 @@
 
 class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
     int m_threadNum;
-    std::unordered_map<std::thread::id, std::thread> m_workers;
+    std::unordered_set<std::thread::id> m_workers;
     std::queue<std::shared_ptr<Runnable>> m_taskQueue; // no limit at now
 
     std::recursive_mutex  m_mutex;

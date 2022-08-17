@@ -1,7 +1,10 @@
 #include "Epoll.h"
 #include <iostream>
 #include <cassert>
+#include <unistd.h>
 using namespace std;
+
+// EPOLLHUP for client close
 
 Epoll::Epoll() {
     m_epollfd = epoll_create(1);
@@ -11,18 +14,19 @@ Epoll::Epoll() {
 void Epoll::addfd(int fd) {
     epoll_event event;
     event.data.fd = fd;
-    event.events = EPOLLIN;
+    event.events = EPOLLIN | EPOLLHUP;
     epoll_ctl(m_epollfd, EPOLL_CTL_ADD, fd, &event);
 }
 
 void Epoll::addEvent(int fd, int ev) {
     epoll_event event;
     event.data.fd = fd;
-    event.events = ev;
+    event.events = ev | EPOLLHUP;
     epoll_ctl(m_epollfd, EPOLL_CTL_MOD, fd, &event);
 }
 
 void Epoll::removefd(int fd) {
+    close(fd);
     epoll_ctl(m_epollfd, EPOLL_CTL_DEL, fd, 0);
 }
 

@@ -61,9 +61,6 @@ Processor::RequestStatus Processor::processRead() {
     }
 
     return status;
-    // string body;
-    // getline(in, body);
-    // parseRequestBody(body);
 }
 
 Processor::RequestStatus Processor::parseRequestLine(const string& line) {
@@ -112,6 +109,7 @@ void Processor::writeStatusLine(int statusCode) {
         return;
     }
 
+    // todo modify status according to input
     m_buffer << "HTTP/1.0 " << statusCode << " " << m_statusCode2Title[statusCode] << endl;
 }
 
@@ -122,8 +120,6 @@ void Processor::writeHeader(int contentLength) {
 
 void Processor::writeContentLength(int contentLength) {
     m_buffer << "Content-Length:" << contentLength << endl;
-    m_buffer << "Connection:close" << endl;
-    m_buffer << "Content-Type: text/html;charset=utf-8" << endl;
 }
 
 void Processor::writeBlankLine() {

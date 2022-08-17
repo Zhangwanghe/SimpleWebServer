@@ -65,15 +65,22 @@ void Reactor::dispatch(const epoll_event& event) {
             m_epoll->addfd(p.first);
         }        
     } else if (m_fd2Handler.count(fd) > 0) {
+        bool succeed = true;
+
         auto handler = m_fd2Handler[fd];
         if (event.events & EPOLLIN) {
-            handler->read(m_threadPool);
+            succeed = handler->read(m_threadPool);
         }
 
         if (event.events & EPOLLOUT) {
-            handler->write();
+            succeed = handler->write();
 
             m_epoll->addEvent(fd, EPOLLIN);
+        }
+
+        if (!succeed || (event.events & (EPOLLHUP | EPOLLERR))) {
+            m_fd2Handler.erase(fd);
+            m_epoll->removefd(fd);
         }
     }
 }

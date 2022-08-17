@@ -15,28 +15,34 @@ Handler::Handler(int fd, const shared_ptr<Epoll>& epoll) {
     m_bufferIn = make_shared<Buffer>();
     m_bufferOut = make_shared<Buffer>();
     m_bufferOutFile = make_shared<Buffer>();
-    m_processer = make_shared<Processor>(m_bufferIn, m_bufferOut, m_bufferOutFile, epoll, fd);
+    m_processor = make_shared<Processor>(m_bufferIn, m_bufferOut, m_bufferOutFile, epoll, fd);
     
     m_buffer = shared_ptr<char>(new char[MaxBufferSize]);
     m_bufferIn->buffer = m_buffer.get();
 }
 
-void Handler::read(shared_ptr<ThreadPool> threadPool) {
+bool Handler::read(shared_ptr<ThreadPool> threadPool) {
     int bytes = recv(m_fd, m_bufferIn->buffer, MaxBufferSize, 0);
     if (bytes <= 0)
     {
-        return;
-    }
+        if (bytes < 0) {
+            if (errno == EINTR) {
+                return false;
+            }
+        }
 
-    threadPool->schedule(m_processer);
+        return true;
+    }
+    threadPool->schedule(m_processor);
+
+    return true;
 }
 
-void Handler::write() {
-    string buffer = ((stringbuf*)m_bufferOut->buffer)->str();
+bool Handler::write() {
+    string buffer = ((const stringbuf*)m_bufferOut->buffer)->str();
     if (buffer.empty()) {
-        return;
+        return true;
     }
-
     struct iovec iv[2];
     int count = 1;
     
@@ -52,11 +58,15 @@ void Handler::write() {
         if (errno == EAGAIN)
         {
             m_epoll->addEvent(m_fd, EPOLLOUT);
+            return true;
+        }
+        else if (errno == EPIPE) {
+            return false;
         }
     }
 
-    m_processer->clear();
-    return;
+    m_processor->clear();
+    return true;
 }
 
 bool Handler::writeFile(struct iovec& iv) {
