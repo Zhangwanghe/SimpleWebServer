@@ -67,7 +67,6 @@ void Reactor::dispatch(const epoll_event& event) {
             m_epoll->addfd(p.first);
         }        
     } else if (m_fd2Handler.count(fd) > 0) {
-        //cout << event.events << endl;
         bool succeed = true;
 
         auto handler = m_fd2Handler[fd];

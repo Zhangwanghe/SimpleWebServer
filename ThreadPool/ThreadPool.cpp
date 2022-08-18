@@ -41,7 +41,7 @@ optional<shared_ptr<Runnable>> ThreadPool::getTask() {
         return nullopt;
     }
 
-    auto ret = m_taskQueue.back();
+    auto ret = m_taskQueue.front();
     m_taskQueue.pop();
     return ret;
 }
