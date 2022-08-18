@@ -1,9 +1,9 @@
-#include "Worker.h"
-#include "ThreadPool.h"
-#include "Runnable.h"
+#include "WorkerDynamic.h"
+#include "ThreadPoolDynamic.h"
+#include "../Runnable.h"
 using namespace std;
 
-void Worker::run(std::shared_ptr<ThreadPool> pool) {
+void WorkerDynamic::run(std::shared_ptr<ThreadPoolDynamic> pool) {
     while (true) {
         auto optTask = pool->getTask();
         if (!optTask) {

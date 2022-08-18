@@ -1,7 +1,8 @@
-#ifndef __ThreadPool_h__
-#define __ThreadPool_h__
-#include "Worker.h"
-#include "Runnable.h"
+#ifndef __ThreadPoolDynamic_h__
+#define __ThreadPoolDynamic_h__
+#include "../IThreadPool.h"
+#include "WorkerDynamic.h"
+#include "../Runnable.h"
 #include <functional>
 #include <unordered_set>
 #include <queue>
@@ -10,7 +11,7 @@
 #include <optional>
 #include <memory>
 
-class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
+class ThreadPoolDynamic : public std::enable_shared_from_this<ThreadPoolDynamic>, public IThreadPool {
     int m_threadNum;
     std::unordered_set<std::thread::id> m_workers;
     std::queue<std::shared_ptr<Runnable>> m_taskQueue; // no limit at now
@@ -19,16 +20,16 @@ class ThreadPool : public std::enable_shared_from_this<ThreadPool> {
 
     void addWorker();
 
-    void executeWorker(const std::shared_ptr<Worker>& worker);
+    void executeWorker(const std::shared_ptr<WorkerDynamic>& WorkerDynamic);
 
     std::optional<std::shared_ptr<Runnable>> getTask();
 
     void removeWorker(std::thread::id id);
 
-    friend class Worker;
+    friend class WorkerDynamic;
 
 public:
-    ThreadPool(int threadNum);
+    ThreadPoolDynamic(int threadNum);
 
     void schedule(std::shared_ptr<Runnable>& task);
 

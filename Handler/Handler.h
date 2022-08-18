@@ -2,7 +2,7 @@
 #define __Handler_h__
 #include "../public/public.h"
 #include "../Processor/Processor.h"
-#include "../ThreadPool/ThreadPool.h"
+#include "../ThreadPool/IThreadPool.h"
 #include "../public/Epoll.h"
 #include <memory>
 
@@ -22,7 +22,7 @@ class Handler {
 public:
     Handler(int fd, const std::shared_ptr<Epoll>& epoll);
 
-    bool read(std::shared_ptr<ThreadPool> threadPool);
+    bool read(std::shared_ptr<IThreadPool> threadPool);
 
     bool write();
 

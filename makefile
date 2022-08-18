@@ -8,7 +8,7 @@ else
 
 endif
 
-server: main.cpp  ./Reactor/Reactor.cpp ./Acceptor/Acceptor.cpp ./Handler/Handler.cpp ./Processor/Processor.cpp ./ThreadPool/ThreadPool.cpp ./ThreadPool/Worker.cpp ./ThreadPool/Runnable.cpp ./public/Epoll.cpp
+server: main.cpp  ./Reactor/Reactor.cpp ./Acceptor/Acceptor.cpp ./Handler/Handler.cpp ./Processor/Processor.cpp ./ThreadPool/ThreadPoolDynamic/ThreadPoolDynamic.cpp ./ThreadPool/ThreadPoolDynamic/WorkerDynamic.cpp ./ThreadPool/Runnable.cpp ./ThreadPool/IThreadPool.cpp ./public/Epoll.cpp
 	$(CXX) -std=c++2a -o server $^ $(CXXFLAGS) -lpthread
 
 clean:

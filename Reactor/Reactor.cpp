@@ -12,9 +12,9 @@
 #include <iostream>
 using namespace std;
 
-void Reactor::init(int port, int threadCount) {
+void Reactor::init(int port, std::shared_ptr<IThreadPool> threadPool) {
     m_port = port;
-    m_threadPool = make_shared<ThreadPool>(threadCount);
+    m_threadPool = threadPool;
     m_epoll = make_shared<Epoll>();
 }
 

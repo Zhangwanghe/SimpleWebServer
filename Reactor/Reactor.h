@@ -1,7 +1,7 @@
 #ifndef __Reactor_h__
 #define __Reactor_h__
 #include "../Handler/Handler.h"
-#include "../ThreadPool/ThreadPool.h"
+#include "../ThreadPool/IThreadPool.h"
 #include "../public/Epoll.h"
 #include <sys/epoll.h>
 #include <unordered_map>
@@ -13,14 +13,14 @@ class Reactor {
     std::shared_ptr<Epoll> m_epoll;
 
     std::unordered_map<int, std::shared_ptr<Handler>> m_fd2Handler;
-    std::shared_ptr<ThreadPool> m_threadPool;
+    std::shared_ptr<IThreadPool> m_threadPool;
 
     void init_listen();
 
     void dispatch(const epoll_event& event);
 
 public:
-    void init(int port, int threadCount);
+    void init(int port, std::shared_ptr<IThreadPool> threadPool);
     
     void startup();
 

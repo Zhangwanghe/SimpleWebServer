@@ -22,7 +22,7 @@ Handler::Handler(int fd, const shared_ptr<Epoll>& epoll) {
     m_bufferIn->buffer = m_buffer.get();
 }
 
-bool Handler::read(shared_ptr<ThreadPool> threadPool) {
+bool Handler::read(shared_ptr<IThreadPool> threadPool) {
     if (m_isHandling) {
         return true;
     }

@@ -1,13 +1,13 @@
-#include "ThreadPool.h"
+#include "ThreadPoolDynamic.h"
 #include <iostream>
 using namespace std;
 
-ThreadPool::ThreadPool(int threadNum)
+ThreadPoolDynamic::ThreadPoolDynamic(int threadNum)
 {
     this->m_threadNum = threadNum;
 }
 
-void ThreadPool::schedule(shared_ptr<Runnable>& task) {
+void ThreadPoolDynamic::schedule(shared_ptr<Runnable>& task) {
     lock_guard<recursive_mutex> guard(m_mutex);
     m_taskQueue.push(task);
 
@@ -16,26 +16,26 @@ void ThreadPool::schedule(shared_ptr<Runnable>& task) {
     }
 }
 
-void ThreadPool::addWorker() {
+void ThreadPoolDynamic::addWorker() {
     lock_guard<recursive_mutex> guard(m_mutex);
     if (m_workers.size() < m_threadNum) {
-        auto worker = make_shared<Worker>();
-        thread t(&ThreadPool::executeWorker, this, worker);
+        auto worker = make_shared<WorkerDynamic>();
+        thread t(&ThreadPoolDynamic::executeWorker, this, worker);
         m_workers.insert(t.get_id());
         t.detach();   
     } 
 }
 
-void ThreadPool::removeWorker(thread::id id) {
+void ThreadPoolDynamic::removeWorker(thread::id id) {
     lock_guard<recursive_mutex> guard(m_mutex);   
     m_workers.erase(id);
 }
 
-void ThreadPool::executeWorker(const shared_ptr<Worker>& worker) {
+void ThreadPoolDynamic::executeWorker(const shared_ptr<WorkerDynamic>& worker) {
     worker->run(shared_from_this());
 }
 
-optional<shared_ptr<Runnable>> ThreadPool::getTask() {
+optional<shared_ptr<Runnable>> ThreadPoolDynamic::getTask() {
     lock_guard<recursive_mutex> guard(m_mutex);   
     if (m_taskQueue.empty()) {
         return nullopt;
