@@ -5,7 +5,6 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <cassert>
-#include <errno.h>
 #include <stdio.h>
 #include <iostream>
 #include <unistd.h>
@@ -88,7 +87,10 @@ void Reactor::dispatch(const epoll_event& event) {
         }
 
         if (event.events & EPOLLOUT) {
-            handler->write();
+            int ret = handler->write();
+            if (ret > 0) {
+                m_epoll->addEvent(fd, EPOLLIN);
+            }
         }
 
         if (event.events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP)) {
@@ -102,5 +104,6 @@ void Reactor::release() {
     for (auto& [fd, handler] : m_fd2Handler) {
         m_epoll->removefd(fd);
     }
+    m_epoll->removefd(m_eventfd);
     close(m_listenfd);
 }

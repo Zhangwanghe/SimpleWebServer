@@ -147,6 +147,7 @@ void Processor::mapFile() {
 
 void Processor::clear() {
     unmapFile();
+    // todo extra remove
     close(m_fd);
 }
 

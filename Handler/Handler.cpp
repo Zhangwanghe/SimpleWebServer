@@ -53,7 +53,6 @@ bool Handler::write() {
     }
 
     if (buffer.empty()) {
-        m_epoll->addEvent(m_fd, EPOLLIN);
         return true;
     }
     struct iovec iv[2];
@@ -74,7 +73,7 @@ bool Handler::write() {
             return false;
         }
         else if (errno == EPIPE) {
-            return false;
+            return true;
         }
     }
 
