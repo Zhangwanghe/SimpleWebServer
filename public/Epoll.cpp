@@ -2,10 +2,10 @@
 #include <iostream>
 #include <cassert>
 #include <unistd.h>
+#include <fcntl.h>
 using namespace std;
 
 // EPOLLHUP for client close
-
 Epoll::Epoll() {
     m_epollfd = epoll_create(1);
     assert(m_epollfd >= 0);
@@ -16,6 +16,15 @@ void Epoll::addfd(int fd) {
     event.data.fd = fd;
     event.events = EPOLLIN | EPOLLHUP;
     epoll_ctl(m_epollfd, EPOLL_CTL_ADD, fd, &event);
+    setnonblocking(fd);
+}
+
+int Epoll::setnonblocking(int fd)
+{
+    int old_option = fcntl(fd, F_GETFL);
+    int new_option = old_option | O_NONBLOCK;
+    fcntl(fd, F_SETFL, new_option);
+    return old_option;
 }
 
 void Epoll::addEvent(int fd, int ev) {

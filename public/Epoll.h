@@ -9,6 +9,8 @@ class Epoll {
     static const int MAX_EVENT_NUM = 10000;
     epoll_event m_events[MAX_EVENT_NUM];
 
+    int setnonblocking(int fd);
+    
 public:
     Epoll();
 

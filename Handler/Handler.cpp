@@ -55,6 +55,7 @@ bool Handler::write() {
     }
 
     if (buffer.empty()) {
+        m_epoll->addEvent(m_fd, EPOLLIN);
         return true;
     }
     struct iovec iv[2];
@@ -72,7 +73,7 @@ bool Handler::write() {
         if (errno == EAGAIN)
         {
             m_epoll->addEvent(m_fd, EPOLLOUT);
-            return true;
+            return false;
         }
         else if (errno == EPIPE) {
             return false;
