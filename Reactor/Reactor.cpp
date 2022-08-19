@@ -20,10 +20,10 @@ void Reactor::init(int port, std::shared_ptr<IThreadPool> threadPool) {
 }
 
 void Reactor::startup() {
-    init_listen();
+    initListen();
 }
 
-void Reactor::init_listen() {
+void Reactor::initListen() {
     m_listenfd = socket(AF_INET, SOCK_STREAM, 0);
     assert(m_listenfd >= 0);
 
@@ -65,7 +65,7 @@ void Reactor::eventloop() {
 void Reactor::dispatch(const epoll_event& event) {
     int fd = event.data.fd;
     if (fd == m_listenfd) {
-        auto opt = m_acceptor.accept_connect(m_listenfd, m_epoll);
+        auto opt = m_acceptor.acceptConnect(m_listenfd, m_epoll);
         if (opt) {
             auto p = opt.value();
             m_fd2Handler[p.first] = p.second;

@@ -21,7 +21,7 @@ class Reactor {
 
     bool m_exit = false;
 
-    void init_listen();
+    void initListen();
     
     void dispatch(const epoll_event& event);
 

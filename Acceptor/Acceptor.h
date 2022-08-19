@@ -8,7 +8,7 @@
 class Handler;
 class Acceptor {
 public:
-    std::optional<std::pair<int, std::shared_ptr<Handler>>> accept_connect(int listenfd, const std::shared_ptr<Epoll>& epoll);
+    std::optional<std::pair<int, std::shared_ptr<Handler>>> acceptConnect(int listenfd, const std::shared_ptr<Epoll>& epoll);
 };
 
 #endif
