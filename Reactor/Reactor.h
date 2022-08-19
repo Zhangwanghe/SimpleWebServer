@@ -15,9 +15,15 @@ class Reactor {
     std::unordered_map<int, std::shared_ptr<Handler>> m_fd2Handler;
     std::shared_ptr<IThreadPool> m_threadPool;
 
-    void init_listen();
+    int m_eventfd;
 
+    bool m_exit = false;
+
+    void init_listen();
+    
     void dispatch(const epoll_event& event);
+
+    void release();
 
 public:
     void init(int port, std::shared_ptr<IThreadPool> threadPool);
@@ -26,7 +32,7 @@ public:
 
     void eventloop();
 
-    void release();
+    void sigHandler(int sig);
 };
 
 #endif

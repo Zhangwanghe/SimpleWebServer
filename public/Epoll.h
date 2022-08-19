@@ -19,6 +19,8 @@ public:
     void removefd(int fd);
 
     std::optional<std::pair<int, epoll_event*>> waitEvents();
+
+    void release();
 };
 
 #endif

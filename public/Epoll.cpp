@@ -40,3 +40,7 @@ optional<pair<int, epoll_event*>> Epoll::waitEvents() {
 
     return make_optional(make_pair(num, &m_events[0]));
 }
+
+void Epoll::release() {
+    close(m_epollfd);
+}

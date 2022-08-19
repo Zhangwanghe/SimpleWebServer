@@ -10,12 +10,16 @@
 #include <errno.h>
 #include <stdio.h>
 #include <iostream>
+#include <unistd.h>
+#include <sys/eventfd.h>
 using namespace std;
 
 void Reactor::init(int port, std::shared_ptr<IThreadPool> threadPool) {
     m_port = port;
     m_threadPool = threadPool;
     m_epoll = make_shared<Epoll>();
+    m_eventfd = eventfd(0, 0);
+    m_epoll->addfd(m_eventfd);
 }
 
 void Reactor::startup() {
@@ -41,8 +45,13 @@ void Reactor::init_listen() {
     m_epoll->addfd(m_listenfd);
 }
 
+void Reactor::sigHandler(int sig) {
+    m_epoll->release();
+    write(m_eventfd, &m_eventfd, sizeof(m_eventfd));
+}
+
 void Reactor::eventloop() {
-    while (true) {
+    while (!m_exit) {
         auto opt = m_epoll->waitEvents();
         if (!opt) {
             break;
@@ -66,6 +75,14 @@ void Reactor::dispatch(const epoll_event& event) {
             m_fd2Handler[p.first] = p.second;
             m_epoll->addfd(p.first);
         }        
+    } else if (fd == m_eventfd) {
+        if (event.events & EPOLLIN) {
+            int buf = 0;
+            read(m_eventfd, &buf, sizeof(uint64_t));
+            if (buf == m_eventfd) {
+                m_exit = true;
+            }
+        }
     } else if (m_fd2Handler.count(fd) > 0) {
         bool succeed = true;
 
@@ -94,4 +111,6 @@ void Reactor::release() {
     for (auto& [fd, handler] : m_fd2Handler) {
         m_epoll->removefd(fd);
     }
+
+    close(m_listenfd);
 }
