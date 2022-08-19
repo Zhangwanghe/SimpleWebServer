@@ -14,7 +14,7 @@ Epoll::Epoll() {
 void Epoll::addfd(int fd) {
     epoll_event event;
     event.data.fd = fd;
-    event.events = EPOLLIN | EPOLLHUP;
+    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
     epoll_ctl(m_epollfd, EPOLL_CTL_ADD, fd, &event);
     setnonblocking(fd);
 }
@@ -30,7 +30,7 @@ int Epoll::setnonblocking(int fd)
 void Epoll::addEvent(int fd, int ev) {
     epoll_event event;
     event.data.fd = fd;
-    event.events = ev | EPOLLHUP;
+    event.events = ev | EPOLLHUP | EPOLLRDHUP;
     epoll_ctl(m_epollfd, EPOLL_CTL_MOD, fd, &event);
 }
 

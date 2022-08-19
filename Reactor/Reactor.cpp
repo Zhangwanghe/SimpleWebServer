@@ -81,23 +81,17 @@ void Reactor::dispatch(const epoll_event& event) {
             }
         }
     } else if (m_fd2Handler.count(fd) > 0) {
-        bool succeed = true;
-
         auto handler = m_fd2Handler[fd];
         if (event.events & EPOLLIN) {
             // todo ||
-            succeed = handler->read(m_threadPool);
+            handler->read(m_threadPool);
         }
 
         if (event.events & EPOLLOUT) {
-            succeed = handler->write();
-
-            //m_epoll->addEvent(fd, EPOLLIN);
-            // todo use return value to determine
-            m_fd2Handler.erase(fd);
+            handler->write();
         }
 
-        if (!succeed || (event.events & (EPOLLHUP | EPOLLERR))) {
+        if (event.events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP)) {
             m_fd2Handler.erase(fd);
             m_epoll->removefd(fd);
         }
@@ -108,6 +102,5 @@ void Reactor::release() {
     for (auto& [fd, handler] : m_fd2Handler) {
         m_epoll->removefd(fd);
     }
-
     close(m_listenfd);
 }
