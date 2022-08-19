@@ -1,6 +1,4 @@
 #include "Reactor.h"
-#include "../Acceptor/Acceptor.h"
-
 #include <strings.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -68,8 +66,7 @@ void Reactor::eventloop() {
 void Reactor::dispatch(const epoll_event& event) {
     int fd = event.data.fd;
     if (fd == m_listenfd) {
-        Acceptor acceptor;
-        auto opt = acceptor.accept_connect(m_listenfd, m_epoll);
+        auto opt = m_acceptor.accept_connect(m_listenfd, m_epoll);
         if (opt) {
             auto p = opt.value();
             m_fd2Handler[p.first] = p.second;

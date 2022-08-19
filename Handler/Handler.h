@@ -9,8 +9,7 @@
 class Handler {
     int m_fd;
     std::shared_ptr<Epoll> m_epoll;
-    
-    std::shared_ptr<char> m_buffer;
+    char m_buffer[MaxBufferSize] ;
     std::shared_ptr<Buffer> m_bufferIn;
     std::shared_ptr<Buffer> m_bufferOut;
     std::shared_ptr<Buffer> m_bufferOutFile;

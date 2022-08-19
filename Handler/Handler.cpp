@@ -17,9 +17,7 @@ Handler::Handler(int fd, const shared_ptr<Epoll>& epoll) {
     m_bufferOut = make_shared<Buffer>();
     m_bufferOutFile = make_shared<Buffer>();
     m_processor = make_shared<Processor>(m_bufferIn, m_bufferOut, m_bufferOutFile, epoll, fd);
-    
-    m_buffer = shared_ptr<char>(new char[MaxBufferSize]);
-    m_bufferIn->buffer = m_buffer.get();
+    m_bufferIn->buffer = m_buffer;
 }
 
 bool Handler::read(shared_ptr<IThreadPool> threadPool) {

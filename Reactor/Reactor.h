@@ -2,6 +2,7 @@
 #define __Reactor_h__
 #include "../Handler/Handler.h"
 #include "../ThreadPool/IThreadPool.h"
+#include "../Acceptor/Acceptor.h"
 #include "../public/Epoll.h"
 #include <sys/epoll.h>
 #include <unordered_map>
@@ -10,6 +11,7 @@
 class Reactor {
     int m_port;
     int m_listenfd;
+    Acceptor m_acceptor;
     std::shared_ptr<Epoll> m_epoll;
 
     std::unordered_map<int, std::shared_ptr<Handler>> m_fd2Handler;
