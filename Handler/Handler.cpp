@@ -67,7 +67,12 @@ bool Handler::write() {
                 // signal eagain will be triggered in non blocking status
                 if (errno == EAGAIN)
                 {
-                    continue;
+                    if (used == 0) {
+                        m_epoll->addEvent(m_fd, EPOLLOUT);
+                        return true;
+                    } else {
+                        continue;
+                    }
                 }
                 else if (errno == EPIPE) {
                     return false;
