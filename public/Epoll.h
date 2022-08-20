@@ -3,8 +3,13 @@
 #include <optional>
 #include <sys/epoll.h>
 
+enum EpollMode {
+    EPOLL_LT,
+    EPOLL_ET
+};
 class Epoll {
     int m_epollfd;
+    int m_eventMask = EPOLLHUP | EPOLLRDHUP;
 
     static const int MAX_EVENT_NUM = 10000;
     epoll_event m_events[MAX_EVENT_NUM];
@@ -12,7 +17,7 @@ class Epoll {
     int setnonblocking(int fd);
     
 public:
-    Epoll();
+    Epoll(EpollMode mode = EPOLL_LT);
 
     void addfd(int fd);
 

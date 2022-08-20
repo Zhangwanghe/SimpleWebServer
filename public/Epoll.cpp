@@ -6,15 +6,18 @@
 using namespace std;
 
 // EPOLLHUP for client close
-Epoll::Epoll() {
+Epoll::Epoll(EpollMode mode) {
     m_epollfd = epoll_create(1);
     assert(m_epollfd >= 0);
+    if (mode == EPOLL_ET) {
+        m_eventMask |= EPOLLET;
+    }
 }
 
 void Epoll::addfd(int fd) {
     epoll_event event;
     event.data.fd = fd;
-    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
+    event.events = EPOLLIN | m_eventMask;
     epoll_ctl(m_epollfd, EPOLL_CTL_ADD, fd, &event);
     setnonblocking(fd);
 }
@@ -30,7 +33,7 @@ int Epoll::setnonblocking(int fd)
 void Epoll::addEvent(int fd, int ev) {
     epoll_event event;
     event.data.fd = fd;
-    event.events = ev | EPOLLHUP | EPOLLRDHUP;
+    event.events = ev | m_eventMask;
     epoll_ctl(m_epollfd, EPOLL_CTL_MOD, fd, &event);
 }
 
