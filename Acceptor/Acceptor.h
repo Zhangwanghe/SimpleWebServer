@@ -7,8 +7,11 @@
 
 class Handler;
 class Acceptor {
+protected:
+    int doAccept(int listenfd);
+
 public:
-    std::optional<std::pair<int, std::shared_ptr<Handler>>> acceptConnect(int listenfd, const std::shared_ptr<Epoll>& epoll);
+    virtual std::optional<std::pair<int, std::shared_ptr<Handler>>> acceptConnect(int listenfd, const std::shared_ptr<Epoll>& epoll);
 };
 
 #endif
