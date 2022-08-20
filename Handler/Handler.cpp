@@ -21,11 +21,6 @@ Handler::Handler(int fd, const shared_ptr<Epoll>& epoll) {
 }
 
 bool Handler::read(shared_ptr<IThreadPool> threadPool) {
-    if (m_isHandling) {
-        return true;
-    }
-    m_isHandling = true; 
-
     int bytes = -1;
     {
         lock_guard<recursive_mutex> g(m_bufferIn->mutex);
@@ -58,29 +53,46 @@ bool Handler::write() {
         
         iv[0].iov_base = (void*)buffer.c_str();
         iv[0].iov_len = buffer.length();
+        int len = iv[0].iov_len;
 
         if (writeFile(iv[1])) {
             ++count;
+            len += iv[1].iov_len;
         }
 
-        int len = writev(m_fd, iv, count);
-        if (len < 0) {
-            // signal eagain will be triggered in non blocking status
-            if (errno == EAGAIN)
-            {
-                cout <<__LINE__<< endl;
-                m_epoll->addEvent(m_fd, EPOLLOUT);
-                return true;
+        int used = 0;
+        while (true) {
+            int curLen = writev(m_fd, iv, count);
+            if (curLen <= 0) {
+                // signal eagain will be triggered in non blocking status
+                if (errno == EAGAIN)
+                {
+                    continue;
+                }
+                else if (errno == EPIPE) {
+                    return false;
+                }
             }
-            else if (errno == EPIPE) {
-                cout <<__LINE__<< endl;
-                return false;
+
+            used += curLen;
+            if (used == len) {
+                break;
+            }
+
+            if (len - used <= iv[1].iov_len) {
+                iv[0].iov_base = iv[1].iov_base + used - iv[0].iov_len;
+                iv[0].iov_len = len - used;                
+                iv[1].iov_len = 0;
+            } else {
+                iv[0].iov_base += curLen;
+                iv[0].iov_len -= curLen;
             }
         }
+            
+        
     }
 
     m_processor->clear();
-    m_isHandling = false;
 
     bool close = !((Processor*)m_processor.get())->isKeepAlive();
     if (close) {

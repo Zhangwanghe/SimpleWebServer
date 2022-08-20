@@ -70,7 +70,10 @@ Processor::RequestStatus Processor::processRead() {
 Processor::RequestStatus Processor::parseRequestLine(const string& line) {
     // deal with Http 1.1
     int firstSpace = line.find_first_of(' ');
-    int secondSpace = line.find_first_of(' ', firstSpace + 1);
+    int secondSpace = line.find_first_of('?', firstSpace + 1);
+    if (secondSpace == string::npos) {
+        secondSpace = line.find_first_of(' ', firstSpace + 1);
+    }
 
     m_requestFile = line.substr(firstSpace + 1, secondSpace - firstSpace - 1);
     if (m_requestFile == "/") {
@@ -79,7 +82,7 @@ Processor::RequestStatus Processor::parseRequestLine(const string& line) {
 
     string filePath = m_rootDir + m_requestFile;
     if (S_ISDIR(m_fileStat.st_mode) || stat(filePath.c_str(), &m_fileStat) < 0) {
-        return NOREQUEST;
+        return BADREQUEST;
     }
 
     int versionPos = line.find_last_of("HTTP/");
@@ -120,6 +123,14 @@ void Processor::processWrite(RequestStatus status) {
             writeStatusLine(statusCode);
             writeHeader(m_fileStat.st_size);
             mapFile();  
+            break;
+        }
+        case BADREQUEST: {
+            int statusCode = 404;
+            writeStatusLine(statusCode);
+            writeHeader(m_statusCode2Title[statusCode].length());
+            writeContent(statusCode);
+            break;
         }
         default: {
             break;
@@ -128,10 +139,6 @@ void Processor::processWrite(RequestStatus status) {
 }
 
 void Processor::writeStatusLine(int statusCode) {
-    if (m_statusCode2Title.count(statusCode) == 0) {
-        return;
-    }
-
     // todo modify status according to input
     m_buffer << "HTTP/1.0 " << statusCode << " " << m_statusCode2Title[statusCode] << endl;
 }
@@ -150,10 +157,6 @@ void Processor::writeBlankLine() {
 }
 
 void Processor::writeContent(int statusCode) {
-    if (m_statusCode2Title.count(statusCode) == 0) {
-        return;
-    }
-
     m_buffer << m_statusCode2Title[statusCode] << endl;
 }
 
