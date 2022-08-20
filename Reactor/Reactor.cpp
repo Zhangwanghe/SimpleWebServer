@@ -17,6 +17,11 @@ void Reactor::init(int port, std::shared_ptr<IThreadPool> threadPool) {
     m_epoll = make_shared<Epoll>();
     m_eventfd = eventfd(0, 0);
     m_epoll->addfd(m_eventfd);
+    initAcceptor();
+}
+
+void Reactor::initAcceptor() {
+    m_acceptor = make_unique<Acceptor>();
 }
 
 void Reactor::startup() {
@@ -65,7 +70,7 @@ void Reactor::eventloop() {
 void Reactor::dispatch(const epoll_event& event) {
     int fd = event.data.fd;
     if (fd == m_listenfd) {
-        auto opt = m_acceptor.acceptConnect(m_listenfd, m_epoll);
+        auto opt = m_acceptor->acceptConnect(m_listenfd, m_epoll);
         if (opt) {
             auto p = opt.value();
             m_fd2Handler[p.first] = p.second;
@@ -88,7 +93,7 @@ void Reactor::dispatch(const epoll_event& event) {
 
         bool ret = true;
         if (event.events & EPOLLOUT) {
-            ret = handler->write();
+            ret = triggerWrite(handler);
         }
 
         if (!ret || (event.events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP))) {
@@ -96,6 +101,14 @@ void Reactor::dispatch(const epoll_event& event) {
             m_epoll->removefd(fd);
         }
     }
+}
+
+void Reactor::triggerRead(const shared_ptr<Handler>& handler) {
+    handler->read(m_threadPool);
+}
+
+int Reactor::triggerWrite(const shared_ptr<Handler>& handler) {
+    return handler->write();
 }
 
 void Reactor::release() {

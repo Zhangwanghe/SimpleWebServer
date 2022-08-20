@@ -11,7 +11,7 @@
 class Reactor {
     int m_port;
     int m_listenfd;
-    Acceptor m_acceptor;
+    std::unique_ptr<Acceptor> m_acceptor;
     std::shared_ptr<Epoll> m_epoll;
 
     std::unordered_map<int, std::shared_ptr<Handler>> m_fd2Handler;
@@ -25,7 +25,14 @@ class Reactor {
     
     void dispatch(const epoll_event& event);
 
+    virtual void triggerRead(const std::shared_ptr<Handler>& handler);
+
+    virtual int triggerWrite(const std::shared_ptr<Handler>& handler);
+
     void release();
+
+protected:
+    virtual void initAcceptor();
 
 public:
     void init(int port, std::shared_ptr<IThreadPool> threadPool);
