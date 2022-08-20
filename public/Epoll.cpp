@@ -14,6 +14,16 @@ Epoll::Epoll(EpollMode mode) {
     }
 }
 
+void Epoll::setMode(EpollMode mode) {
+    if (mode == EPOLL_ET) {
+        m_eventMask |= EPOLLET;
+        m_eventMask &= ~EPOLLLT;
+    } else {
+        m_eventMask |= EPOLLLT;
+        m_eventMask &= ~EPOLLET;
+    }
+}
+
 void Epoll::addfd(int fd) {
     epoll_event event;
     event.data.fd = fd;

@@ -19,6 +19,8 @@ class Epoll {
 public:
     Epoll(EpollMode mode = EPOLL_LT);
 
+    void setMode(EpollMode mode);
+
     void addfd(int fd);
 
     void addEvent(int fd, int ev);
