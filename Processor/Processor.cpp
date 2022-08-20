@@ -82,10 +82,30 @@ Processor::RequestStatus Processor::parseRequestLine(const string& line) {
         return NOREQUEST;
     }
 
+    int versionPos = line.find_last_of("HTTP/");
+    if (versionPos != string::npos) {
+        m_httpVersion = line.substr(versionPos + 1, 3);
+        m_isKeepAlive = m_httpVersion == "1.1" ? true : false;
+    }
+
     return FILEREQUEST;
 }
 
 Processor::RequestStatus Processor::parseRequestHeader(const vector<string>& headers) {
+    for (auto& header : headers) {
+        int splitPos = header.find_first_of(':');
+        if (splitPos == string::npos) {
+            continue;
+        }
+
+        string key = header.substr(0, splitPos);
+        string value = header.substr(splitPos + 1);
+
+        if (key == "Connection") {
+            m_isKeepAlive = "keep-alive" ? true : false;
+        }
+    }
+
     return NOREQUEST;
 }
 
@@ -147,8 +167,6 @@ void Processor::mapFile() {
 
 void Processor::clear() {
     unmapFile();
-    // todo extra remove
-    close(m_fd);
 }
 
 void Processor::unmapFile() {
@@ -156,4 +174,8 @@ void Processor::unmapFile() {
         munmap(m_bufferOutFile->buffer, m_bufferOutFile->len);
         m_bufferOutFile->buffer = nullptr;
     }
+}
+
+bool Processor::isKeepAlive() {
+    return m_isKeepAlive;
 }

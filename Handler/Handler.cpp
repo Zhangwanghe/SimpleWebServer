@@ -52,34 +52,42 @@ bool Handler::write() {
         m_bufferOut->len = 0;
     }
 
-    if (buffer.empty()) {
-        return true;
-    }
-    struct iovec iv[2];
-    int count = 1;
-    
-    iv[0].iov_base = (void*)buffer.c_str();
-    iv[0].iov_len = buffer.length();
+    if (!buffer.empty()) {
+        struct iovec iv[2];
+        int count = 1;
+        
+        iv[0].iov_base = (void*)buffer.c_str();
+        iv[0].iov_len = buffer.length();
 
-    if (writeFile(iv[1])) {
-        ++count;
-    }
-
-    int len = writev(m_fd, iv, count);
-    if (len < 0) {
-        if (errno == EAGAIN)
-        {
-            m_epoll->addEvent(m_fd, EPOLLOUT);
-            return false;
+        if (writeFile(iv[1])) {
+            ++count;
         }
-        else if (errno == EPIPE) {
-            return true;
+
+        int len = writev(m_fd, iv, count);
+        if (len < 0) {
+            // signal eagain will be triggered in non blocking status
+            if (errno == EAGAIN)
+            {
+                cout <<__LINE__<< endl;
+                m_epoll->addEvent(m_fd, EPOLLOUT);
+                return true;
+            }
+            else if (errno == EPIPE) {
+                cout <<__LINE__<< endl;
+                return false;
+            }
         }
     }
 
     m_processor->clear();
     m_isHandling = false;
 
+    bool close = !((Processor*)m_processor.get())->isKeepAlive();
+    if (close) {
+        return false;
+    }   
+    
+    m_epoll->addEvent(m_fd, EPOLLIN);
     return true;
 }
 

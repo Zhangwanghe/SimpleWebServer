@@ -86,14 +86,12 @@ void Reactor::dispatch(const epoll_event& event) {
             handler->read(m_threadPool);
         }
 
+        bool ret = true;
         if (event.events & EPOLLOUT) {
-            int ret = handler->write();
-            if (ret > 0) {
-                m_epoll->addEvent(fd, EPOLLIN);
-            }
+            ret = handler->write();
         }
 
-        if (event.events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP)) {
+        if (!ret || (event.events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP))) {
             m_fd2Handler.erase(fd);
             m_epoll->removefd(fd);
         }

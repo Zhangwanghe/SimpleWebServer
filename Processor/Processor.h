@@ -24,6 +24,11 @@ class Processor : public Runnable{
     
     std::shared_ptr<Epoll> m_epoll;
     int m_fd;
+
+    // http attribute
+    // todo extract class
+    bool m_isKeepAlive;
+    std::string m_httpVersion = "1.1";
     
     enum MethodType {
         GET = 0,
@@ -72,6 +77,8 @@ public:
     virtual void run();
 
     virtual void clear();
+
+    bool isKeepAlive();
 };
 
 #endif
