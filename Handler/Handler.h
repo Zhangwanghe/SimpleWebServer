@@ -14,9 +14,10 @@ class Handler {
     std::shared_ptr<Buffer> m_bufferOut;
     std::shared_ptr<Buffer> m_bufferOutFile;
 
-    std::shared_ptr<Runnable> m_processor;
-
     bool m_isHandling = false;
+    
+protected:
+    std::shared_ptr<Runnable> m_processor;
 
 public:
     Handler(int fd, const std::shared_ptr<Epoll>& epoll);

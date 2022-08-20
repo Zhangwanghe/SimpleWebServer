@@ -88,7 +88,7 @@ void Reactor::dispatch(const epoll_event& event) {
         auto handler = m_fd2Handler[fd];
         if (event.events & EPOLLIN) {
             // todo ||
-            handler->read(m_threadPool);
+            triggerRead(handler);
         }
 
         bool ret = true;

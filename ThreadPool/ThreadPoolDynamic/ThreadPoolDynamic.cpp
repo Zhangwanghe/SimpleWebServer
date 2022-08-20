@@ -7,7 +7,7 @@ ThreadPoolDynamic::ThreadPoolDynamic(int threadNum)
     this->m_threadNum = threadNum;
 }
 
-void ThreadPoolDynamic::schedule(shared_ptr<Runnable>& task) {
+void ThreadPoolDynamic::schedule(const shared_ptr<Runnable>& task) {
     lock_guard<recursive_mutex> guard(m_mutex);
     m_taskQueue.push(task);
 

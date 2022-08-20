@@ -5,7 +5,7 @@
 class Runnable;
 class IThreadPool {
 public:
-    virtual void schedule(std::shared_ptr<Runnable>& task) = 0;
+    virtual void schedule(const std::shared_ptr<Runnable>& task) = 0;
     
     virtual ~IThreadPool() = 0;
 };

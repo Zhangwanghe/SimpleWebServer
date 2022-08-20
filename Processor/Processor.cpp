@@ -34,13 +34,12 @@ void Processor::initStatusCode() {
 }
 
 void Processor::run() {
-    auto status = processRead();
-    processWrite(status);
-    // reset event to trigger
-    m_epoll->addEvent(m_fd, EPOLLOUT);
+    processRead();
+    processWrite();
+    
 }   
 
-Processor::RequestStatus Processor::processRead() {
+void Processor::processRead() {
     istringstream in;
     {
         lock_guard<recursive_mutex> g(m_bufferIn->mutex);
@@ -64,10 +63,11 @@ Processor::RequestStatus Processor::processRead() {
         headers.push_back(header);
     }
 
-    return status;
+    m_status = status;
 }
 
 Processor::RequestStatus Processor::parseRequestLine(const string& line) {
+    //cout << line << endl;
     // deal with Http 1.1
     int firstSpace = line.find_first_of(' ');
     int secondSpace = line.find_first_of('?', firstSpace + 1);
@@ -116,8 +116,8 @@ Processor::RequestStatus Processor::parseRequestBody(const string& body) {
     return NOREQUEST;
 }
 
-void Processor::processWrite(RequestStatus status) {
-    switch(status) {
+void Processor::processWrite() {
+    switch(m_status) {
         case FILEREQUEST: {
             int statusCode = 200;
             writeStatusLine(statusCode);
@@ -136,6 +136,9 @@ void Processor::processWrite(RequestStatus status) {
             break;
         }
     }
+
+    // reset event to trigger
+    m_epoll->addEvent(m_fd, EPOLLOUT);
 }
 
 void Processor::writeStatusLine(int statusCode) {

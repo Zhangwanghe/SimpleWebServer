@@ -41,19 +41,17 @@ class Processor : public Runnable{
         FILEREQUEST
     };
 
+    RequestStatus m_status;
+
     const std::string DefaultPage = "welcome.html";
 
     void initStatusCode();
-
-    RequestStatus processRead();
 
     RequestStatus parseRequestLine(const std::string& line);
 
     RequestStatus parseRequestHeader(const std::vector<std::string>& headers);
 
     RequestStatus parseRequestBody(const std::string& s);
-
-    void processWrite(RequestStatus status);
 
     void writeStatusLine(int statusCode);
 
@@ -79,6 +77,10 @@ public:
     virtual void clear();
 
     bool isKeepAlive();
+
+    void processRead();
+
+    void processWrite();
 };
 
 #endif

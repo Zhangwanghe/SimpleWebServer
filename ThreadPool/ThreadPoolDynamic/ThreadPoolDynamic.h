@@ -31,7 +31,7 @@ class ThreadPoolDynamic : public std::enable_shared_from_this<ThreadPoolDynamic>
 public:
     ThreadPoolDynamic(int threadNum);
 
-    void schedule(std::shared_ptr<Runnable>& task);
+    void schedule(const std::shared_ptr<Runnable>& task);
 
     //void waitAll();
 };

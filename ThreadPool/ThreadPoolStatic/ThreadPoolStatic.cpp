@@ -7,7 +7,7 @@ ThreadPoolStatic::ThreadPoolStatic(int threadNum)
     m_threadNum = threadNum;
 }
 
-void ThreadPoolStatic::schedule(shared_ptr<Runnable>& task) {
+void ThreadPoolStatic::schedule(const shared_ptr<Runnable>& task) {
     lock_guard<recursive_mutex> guard(m_mutex);
     m_taskQueue.push(task);
 
