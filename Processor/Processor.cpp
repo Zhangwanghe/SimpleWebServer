@@ -44,7 +44,7 @@ void Processor::processRead() {
     istringstream in;
     {
         lock_guard<recursive_mutex> g(m_bufferIn->mutex);
-        in = istringstream((char*)m_bufferIn->buffer);
+        in = istringstream(static_cast<char*>(m_bufferIn->buffer));
     }
 
     string line;

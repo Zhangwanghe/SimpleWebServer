@@ -9,8 +9,8 @@ HandlerET::HandlerET(int fd, const shared_ptr<Epoll>& epoll): Handler(fd, epoll)
 
 void HandlerET::run() {
     read(shared_ptr<IThreadPool>(nullptr));
-    ((Processor*)m_processor.get())->processRead();    
-    ((Processor*)m_processor.get())->processWrite();
+    (dynamic_cast<Processor*>(m_processor.get()))->processRead();    
+    (dynamic_cast<Processor*>(m_processor.get()))->processWrite();
     int ret = write();
     if (!ret) {
         // trigger for delete fd

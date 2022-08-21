@@ -43,7 +43,7 @@ bool Handler::write() {
     string buffer;
     {
         lock_guard<recursive_mutex> g(m_bufferOut->mutex);
-        buffer = ((const stringbuf*)m_bufferOut->buffer)->str();
+        buffer = (static_cast<const stringbuf*>(m_bufferOut->buffer))->str();
         m_bufferOut->len = 0;
     }
 
@@ -51,7 +51,7 @@ bool Handler::write() {
         struct iovec iv[2];
         int count = 1;
         
-        iv[0].iov_base = (void*)buffer.c_str();
+        iv[0].iov_base = static_cast<void*>(const_cast<char*>(buffer.c_str()));
         iv[0].iov_len = buffer.length();
         int len = iv[0].iov_len;
 
@@ -67,6 +67,7 @@ bool Handler::write() {
                 // signal eagain will be triggered in non blocking status
                 if (errno == EAGAIN)
                 {
+                    cout << "EAGAIN" << endl;
                     continue;
                 }
                 
@@ -91,7 +92,7 @@ bool Handler::write() {
 
     m_processor->clear();
 
-    bool close = !((Processor*)m_processor.get())->isKeepAlive();
+    bool close = !(dynamic_cast<Processor*>(m_processor.get()))->isKeepAlive();
     if (close) {
         return false;
     }   
