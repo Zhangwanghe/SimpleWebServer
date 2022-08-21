@@ -11,8 +11,11 @@ void HandlerET::run() {
     read(shared_ptr<IThreadPool>(nullptr));
     ((Processor*)m_processor.get())->processRead();    
     ((Processor*)m_processor.get())->processWrite();
-    write();
-    m_epoll->addEvent(m_fd, EPOLLOUT);
+    int ret = write();
+    if (!ret) {
+        // trigger for delete fd
+        m_epoll->addEvent(m_fd, EPOLLOUT);
+    }    
 }
 
 bool HandlerET::read(const std::shared_ptr<IThreadPool>& threadPool) {
