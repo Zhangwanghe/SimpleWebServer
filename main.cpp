@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Reactor/Reactor.h"
+#include "Reactor/ReactorET.h"
 #include "ThreadPool/ThreadPoolDynamic/ThreadPoolDynamic.h"
 #include "ThreadPool/ThreadPoolStatic/ThreadPoolStatic.h"
 #include <signal.h>
@@ -7,7 +7,7 @@
 // todo read from config or db
 const int Port = 10086;
 const int ThreadCount = 10;
-Reactor reactor;
+ReactorET reactor;
 
 void initSignal();
 void sigHandler(int sig);

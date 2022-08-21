@@ -7,22 +7,25 @@
 #include <memory>
 
 class Handler {
-    int m_fd;
-    std::shared_ptr<Epoll> m_epoll;
     char m_buffer[MaxBufferSize] ;
-    std::shared_ptr<Buffer> m_bufferIn;
     std::shared_ptr<Buffer> m_bufferOut;
     std::shared_ptr<Buffer> m_bufferOutFile;
 
     bool m_isHandling = false;
     
 protected:
+    int m_fd;
+
+    std::shared_ptr<Epoll> m_epoll;
+
+    std::shared_ptr<Buffer> m_bufferIn;
+
     std::shared_ptr<Runnable> m_processor;
 
 public:
     Handler(int fd, const std::shared_ptr<Epoll>& epoll);
 
-    bool read(std::shared_ptr<IThreadPool> threadPool);
+    virtual bool read(const std::shared_ptr<IThreadPool>& threadPool);
 
     bool write();
 

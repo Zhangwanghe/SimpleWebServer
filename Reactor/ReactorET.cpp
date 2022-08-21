@@ -8,14 +8,10 @@ void ReactorET::initAcceptor() {
 }
 
 void ReactorET::triggerRead(const shared_ptr<Handler>& handler) {
-    shared_ptr<HandlerET> handlerET((HandlerET*)handler.get());
-    handlerET->setStatus(HandlerRead);
-    this->m_threadPool->schedule(shared_ptr<Runnable>((Runnable*)handler.get()));
+    shared_ptr<HandlerET> handlerET(dynamic_pointer_cast<HandlerET>(handler));
+    this->m_threadPool->schedule(static_pointer_cast<Runnable>(handlerET));
 }
 
 int ReactorET::triggerWrite(const shared_ptr<Handler>& handler) {
-    shared_ptr<HandlerET> handlerET((HandlerET*)handler.get());
-    handlerET->setStatus(HandlerWrite);
-    this->m_threadPool->schedule(shared_ptr<Runnable>((Runnable*)handler.get()));
-    return 0;
+    return false;
 }

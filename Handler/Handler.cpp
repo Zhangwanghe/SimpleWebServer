@@ -20,7 +20,7 @@ Handler::Handler(int fd, const shared_ptr<Epoll>& epoll) {
     m_bufferIn->buffer = m_buffer;
 }
 
-bool Handler::read(shared_ptr<IThreadPool> threadPool) {
+bool Handler::read(const std::shared_ptr<IThreadPool>& threadPool) {
     int bytes = -1;
     {
         lock_guard<recursive_mutex> g(m_bufferIn->mutex);
@@ -67,16 +67,10 @@ bool Handler::write() {
                 // signal eagain will be triggered in non blocking status
                 if (errno == EAGAIN)
                 {
-                    if (used == 0) {
-                        m_epoll->addEvent(m_fd, EPOLLOUT);
-                        return true;
-                    } else {
-                        continue;
-                    }
+                    continue;
                 }
-                else if (errno == EPIPE) {
-                    return false;
-                }
+                
+                return false;
             }
 
             used += curLen;
@@ -93,8 +87,6 @@ bool Handler::write() {
                 iv[0].iov_len -= curLen;
             }
         }
-            
-        
     }
 
     m_processor->clear();

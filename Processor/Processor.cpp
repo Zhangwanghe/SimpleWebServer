@@ -36,7 +36,8 @@ void Processor::initStatusCode() {
 void Processor::run() {
     processRead();
     processWrite();
-    
+    // reset event to trigger
+    m_epoll->addEvent(m_fd, EPOLLOUT);
 }   
 
 void Processor::processRead() {
@@ -67,7 +68,6 @@ void Processor::processRead() {
 }
 
 Processor::RequestStatus Processor::parseRequestLine(const string& line) {
-    //cout << line << endl;
     // deal with Http 1.1
     int firstSpace = line.find_first_of(' ');
     int secondSpace = line.find_first_of('?', firstSpace + 1);
@@ -136,9 +136,6 @@ void Processor::processWrite() {
             break;
         }
     }
-
-    // reset event to trigger
-    m_epoll->addEvent(m_fd, EPOLLOUT);
 }
 
 void Processor::writeStatusLine(int statusCode) {
