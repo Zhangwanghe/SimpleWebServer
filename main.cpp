@@ -4,7 +4,6 @@
 #include "ThreadPool/ThreadPoolStatic/ThreadPoolStatic.h"
 #include <signal.h>
 
-// todo read from config or db
 const int Port = 10086;
 const int ThreadCount = 10;
 ReactorET reactor;

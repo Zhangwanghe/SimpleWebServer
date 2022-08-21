@@ -4,7 +4,6 @@
 using namespace std;
 
 void WorkerStatic::run(std::shared_ptr<ThreadPoolStatic> pool) {
-    // todo set exit condition
     while (true) {
         auto optTask = pool->getTask();
         if (!optTask) {

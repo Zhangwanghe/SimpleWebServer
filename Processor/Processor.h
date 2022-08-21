@@ -26,7 +26,6 @@ class Processor : public Runnable{
     int m_fd;
 
     // http attribute
-    // todo extract class
     bool m_isKeepAlive;
     std::string m_httpVersion = "1.1";
     

@@ -87,7 +87,6 @@ void Reactor::dispatch(const epoll_event& event) {
     } else if (m_fd2Handler.count(fd) > 0) {
         auto handler = m_fd2Handler[fd];
         if (event.events & EPOLLIN) {
-            // todo ||
             triggerRead(handler);
         }
 
@@ -99,6 +98,7 @@ void Reactor::dispatch(const epoll_event& event) {
         if (!ret || (event.events & (EPOLLHUP | EPOLLERR | EPOLLRDHUP))) {
             m_fd2Handler.erase(fd);
             m_epoll->removefd(fd);
+            ++r;
         }
     }
 }

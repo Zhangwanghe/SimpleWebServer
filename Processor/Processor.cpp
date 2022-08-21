@@ -139,7 +139,6 @@ void Processor::processWrite() {
 }
 
 void Processor::writeStatusLine(int statusCode) {
-    // todo modify status according to input
     m_buffer << "HTTP/1.0 " << statusCode << " " << m_statusCode2Title[statusCode] << endl;
 }
 
